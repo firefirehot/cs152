@@ -4,8 +4,9 @@ long row_c = 1;
 long col_c = 1;
 
 %}
+
 DIGIT [0-9]
-ID [a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]
+ID ([a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9])|([a-zA-Z])
 BADIDONE [0-9_][a-zA-Z0-9_]*[a-zA-Z0-9]
 BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 
@@ -14,7 +15,7 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 
 
 {DIGIT}+ {printf("NUMBER %s \n",yytext); col_c = col_c + yyleng;}
-
+##.* {col_c = col_c + yyleng;}
 "function" {printf("FUNCTION \n");col_c = col_c + yyleng;}
 "beginparams" {printf("BEGIN_PARAMS \n");col_c = col_c + yyleng;}
 "endparams" {printf("END_PARAMS \n");col_c = col_c + yyleng;}
@@ -54,22 +55,21 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 "<=" {printf("LTE \n");col_c = col_c + yyleng;} 
 ">=" {printf("GTE \n");col_c = col_c + yyleng;} 
 {ID} {printf("IDENT %s\n", yytext);col_c = col_c + yyleng;} 
-{DIGIT}+ {printf("NUMBER %s\n", yytext);col_c = col_c + yyleng;}
 ";" {printf("SEMICOLON \n");col_c = col_c + yyleng;} 
 ":" {printf("COLON \n");col_c = col_c + yyleng;} 
 "," {printf("COMMA \n");col_c = col_c + yyleng;} 
 "(" {printf("L_PAREN \n");col_c = col_c + yyleng;} 
 ")" {printf("R_PAREN \n");col_c = col_c + yyleng;} 
-"]" {printf("L_SQUARE_BRACKET\n");col_c = col_c + yyleng;} 
-"[" {printf("R_SQUARE_BRACKET\n");col_c = col_c + yyleng;}  
+"]" {printf("R_SQUARE_BRACKET\n");col_c = col_c + yyleng;} 
+"[" {printf("L_SQUARE_BRACKET\n");col_c = col_c + yyleng;}  
 ":=" {printf("ASSIGN \n");col_c = col_c + yyleng;} 
 {BADIDONE} {printf("INVALID IDENTIFIER");exit(0);}
 {BADIDTWO} {printf("INVALID IDENTIFIER at row %d and column %d. User entered %s \n ", col_c,row_c, yytext);exit(0);}
-"\n" {col_c = col_c + 1; row_c = 1;}
-[\t]+ {col_c = col_c + yyleng;}
+\n {row_c = row_c + 1; col_c = 1;}
+[ \t]+ {col_c = col_c + yyleng;}
 
 
-. {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", col_c,row_c,yytext); exit(0);}
+. {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", row_c,col_c,yytext); exit(0);}
 
 
 
