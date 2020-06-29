@@ -1115,7 +1115,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 78 "mini_l.lex"
+#line 73 "mini_l.lex"
 ECHO;
 	YY_BREAK
 #line 1122 "lex.yy.c"
@@ -2112,7 +2112,27 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 78 "mini_l.lex"
+#line 73 "mini_l.lex"
 
+
+
+
+int main(int argc, char ** argv)
+{
+   if(argc >= 2)
+   {
+      yyin = fopen(argv[1], "r");
+      if(yyin == NULL)
+      {
+         yyin = stdin;
+      }
+   }
+   else
+   {
+      yyin = stdin;
+   }
+   
+   yylex();
+}
 
 

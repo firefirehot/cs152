@@ -70,9 +70,24 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 
 
 . {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", row_c,col_c,yytext); exit(0);}
-
-
-
-
-
 %%
+
+
+int main(int argc, char ** argv)
+{
+   if(argc >= 2)
+   {
+      yyin = fopen(argv[1], "r");
+      if(yyin == NULL)
+      {
+         yyin = stdin;
+      }
+   }
+   else
+   {
+      yyin = stdin;
+   }
+   
+   yylex();
+}
+
