@@ -1,5 +1,6 @@
 %{
 //c code
+#include "y.tab.h"
 long row_c = 1;
 long col_c = 1;
 
@@ -14,7 +15,7 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 %%
 
 
-{DIGIT}+ {printf("NUMBER %s \n",yytext); col_c = col_c + yyleng;}
+{DIGIT}+ { col_c = col_c + yyleng; yylval.ival = yytext; return NUMBER;}
 ##.* {col_c = col_c + yyleng;}
 "function" {printf("FUNCTION \n");col_c = col_c + yyleng;}
 "beginparams" {printf("BEGIN_PARAMS \n");col_c = col_c + yyleng;}
