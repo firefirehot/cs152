@@ -15,55 +15,55 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 %%
 
 
-{DIGIT}+ { col_c = col_c + yyleng; yylval.ival = yytext; return NUMBER;}
+{DIGIT}+ { col_c = col_c + yyleng; yylval.ival = atoi(yytext); return NUMBER;}
 ##.* {col_c = col_c + yyleng;}
-"function" {printf("FUNCTION \n");col_c = col_c + yyleng;}
-"beginparams" {printf("BEGIN_PARAMS \n");col_c = col_c + yyleng;}
-"endparams" {printf("END_PARAMS \n");col_c = col_c + yyleng;}
-"beginlocals" {printf("BEIN_LOCALS \n");col_c = col_c + yyleng;}
-"endlocals" {printf("END_LOCALS \n");col_c = col_c + yyleng;}
-"beginbody" {printf("BEGIN_BODY \n");col_c = col_c + yyleng;}
-"endbody" {printf("END_BODY \n");col_c = col_c + yyleng;}
-"integer" {printf("INTEGER \n");col_c = col_c + yyleng;}
-"array" {printf("ARRAY \n");col_c = col_c + yyleng;}
-"of" {printf("OF \n");col_c = col_c + yyleng;}
-"if" {printf("IF \n");col_c = col_c + yyleng;}
-"then" {printf("THEN \n");col_c = col_c + yyleng;}
-"endif" {printf("ENDIF \n");col_c = col_c + yyleng;}
-"else" {printf("ELSE \n");col_c = col_c + yyleng;}
-"while" {printf("WHILE \n");col_c = col_c + yyleng;}
-"do" {printf("DO \n");col_c = col_c + yyleng;}
-"beginloop" {printf("BEGINLOOP \n");col_c = col_c + yyleng;}
-"endloop" {printf("ENDLOOP \n");col_c = col_c + yyleng;}
-"continue" {printf("CONTINUE \n");col_c = col_c + yyleng;}
-"read" {printf("READ \n");col_c = col_c + yyleng;}
-"write" {printf("WRITE \n");col_c = col_c + yyleng;}
-"and" {printf("AND \n");col_c = col_c + yyleng;}
-"or" {printf("OR \n");col_c = col_c + yyleng;} 
-"not" {printf("NOT \n");col_c = col_c + yyleng;} 
-"true" {printf("TRUE \n");col_c = col_c + yyleng;} 
-"false" {printf("FALSE \n");col_c = col_c + yyleng;} 
-"return" {printf("RETURN \n");col_c = col_c + yyleng;} 
-"-" {printf("SUB \n");col_c = col_c + yyleng;} 
-"+" {printf("ADD \n");col_c = col_c + yyleng;} 
-"*" {printf("MULT\n");col_c = col_c + yyleng;} 
-"/" {printf("DIV \n");col_c = col_c + yyleng;} 
-"%" {printf("MOD \n");col_c = col_c + yyleng;} 
-"==" {printf("EQ \n");col_c = col_c + yyleng;} 
-"<>" {printf("NEQ \n");col_c = col_c + yyleng;} 
-"<" {printf("LT \n");col_c = col_c + yyleng;} 
-">" {printf("GT \n");col_c = col_c + yyleng;} 
-"<=" {printf("LTE \n");col_c = col_c + yyleng;} 
-">=" {printf("GTE \n");col_c = col_c + yyleng;} 
-{ID} {printf("IDENT %s\n", yytext);col_c = col_c + yyleng;} 
-";" {printf("SEMICOLON \n");col_c = col_c + yyleng;} 
-":" {printf("COLON \n");col_c = col_c + yyleng;} 
-"," {printf("COMMA \n");col_c = col_c + yyleng;} 
-"(" {printf("L_PAREN \n");col_c = col_c + yyleng;} 
-")" {printf("R_PAREN \n");col_c = col_c + yyleng;} 
-"]" {printf("R_SQUARE_BRACKET\n");col_c = col_c + yyleng;} 
-"[" {printf("L_SQUARE_BRACKET\n");col_c = col_c + yyleng;}  
-":=" {printf("ASSIGN \n");col_c = col_c + yyleng;} 
+"function" {col_c = col_c + yyleng; return FUNCTION;}
+"beginparams" {col_c = col_c + yyleng;return BEGIN_PARAMS;}
+"endparams" {col_c = col_c + yyleng;return END_PARAMS;}
+"beginlocals" {col_c = col_c + yyleng; return BEGIN_LOCALS;}
+"endlocals" {col_c = col_c + yyleng; return END_LOCALS;}
+"beginbody" {col_c = col_c + yyleng;return BEGIN_BODY;}
+"endbody" {col_c = col_c + yyleng; return END_BODY;}
+"integer" {col_c = col_c + yyleng; return END_BODY;}
+"array" {col_c = col_c + yyleng; return ARRAY;}
+"of" {col_c = col_c + yyleng;return OF;}
+"if" {col_c = col_c + yyleng; return IF;}
+"then" {col_c = col_c + yyleng; return THEN;}
+"endif" {col_c = col_c + yyleng; return ENDIF;}
+"else" {col_c = col_c + yyleng; return ELSE;}
+"while" {col_c = col_c + yyleng; return WHILE;}
+"do" {col_c = col_c + yyleng; return DO;}
+"beginloop" {col_c = col_c + yyleng; return BEGINLOOP;}
+"endloop" {col_c = col_c + yyleng; return ENDLOOP;}
+"continue" {col_c = col_c + yyleng; return CONTINUE;}
+"read" {col_c = col_c + yyleng; return READ;}
+"write" {col_c = col_c + yyleng; return WRITE;}
+"and" {col_c = col_c + yyleng; return AND;}
+"or" {col_c = col_c + yyleng; return OR;} 
+"not" {col_c = col_c + yyleng; return NOT;} 
+"true" {col_c = col_c + yyleng; return TRUE;} 
+"false" {col_c = col_c + yyleng; return FALSE;} 
+"return" {col_c = col_c + yyleng; return RETURN;} 
+"-" {col_c = col_c + yyleng; return SUB;} 
+"+" {col_c = col_c + yyleng; return ADD;} 
+"*" {col_c = col_c + yyleng; return MULT;} 
+"/" {col_c = col_c + yyleng; return DIV;} 
+"%" {col_c = col_c + yyleng; return MOD;} 
+"==" {col_c = col_c + yyleng; return EQ;} 
+"<>" {col_c = col_c + yyleng; return NEQ;} 
+"<" {col_c = col_c + yyleng; return LT;} 
+">" {col_c = col_c + yyleng; return GT;} 
+"<=" {col_c = col_c + yyleng; return LTE;} 
+">=" {col_c = col_c + yyleng; return GTE;} 
+{ID} {col_c = col_c + yyleng; yylval.cval = yytext; return IDENT;} 
+";" {col_c = col_c + yyleng; return SEMICOLON;} 
+":" {col_c = col_c + yyleng; return COLON;} 
+"," {col_c = col_c + yyleng; return COMMA;} 
+"(" {col_c = col_c + yyleng; return L_PAREN;} 
+")" {col_c = col_c + yyleng; return R_PAREN;} 
+"]" {col_c = col_c + yyleng; return R_SQUARE_BRACKET;} 
+"[" {col_c = col_c + yyleng; return L_SQUARE_BRACKET;}  
+":=" {col_c = col_c + yyleng; return ASSIGN;} 
 {BADIDONE} {printf("INVALID IDENTIFIER");exit(0);}
 {BADIDTWO} {printf("INVALID IDENTIFIER at row %d and column %d. User entered %s \n ", col_c,row_c, yytext);exit(0);}
 \n {row_c = row_c + 1; col_c = 1;}
@@ -73,22 +73,4 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 . {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", row_c,col_c,yytext); exit(0);}
 %%
 
-
-int main(int argc, char ** argv)
-{
-   if(argc >= 2)
-   {
-      yyin = fopen(argv[1], "r");
-      if(yyin == NULL)
-      {
-         yyin = stdin;
-      }
-   }
-   else
-   {
-      yyin = stdin;
-   }
-   
-   yylex();
-}
 
