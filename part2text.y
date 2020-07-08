@@ -18,56 +18,57 @@ void yyerror(const char * msg);
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE IDENT NUMBER SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN
 %type<cval> IDENT
 %type<ival> NUMBER
+%right ASSIGN
+%left OR AND
+%right NOT
+%left EQ NEQ LT GT LTE GTE
 %left PLUS MINUS
-%left MULT DIV
+%left MULT DIV MOD
+%right UMINUS
+%left L_SQUARE_BRACKET R_SQUARE_BRACKET
+%left R_PAREN L_PAREN
+
 %start program
 
  
 %%
-program: functions
-	{printf(" \n");}
+program:/*epsilon*/
+	{printf("Program->epsilon \n");} 
+	| functions
+	{printf("Program->FUNCTION functions");}
 	;
-functions: /*epsilon*/
-        {printf(" \n");}
+functions: function
 	| function functions
-        {printf(" \n");}
         ;
-function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi ENDPARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi ENDBODY
-        {printf(" \n");}
+function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi END_BODY
+        {printf("function-> FUNCTION IDENT SEMICOLON BEGIN_PARAMS (declaration SEMICOLON declarations)? END_PARAMS BEGIN_LOCALS (declaration SEMICOLON declarations)? END_LOCALS BEGIN_BODY statement SEMICOLON statements END_BODY \n");}
         ;
 declarationsWsemi: /*epsilon*/
-        {printf(" \n");}
-        | declaration declarations SEMICOLON
-        ;
-declarations: declaration declarations
+        | declaration SEMICOLON declarationsWsemi
         ;
 declaration: idents COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER
-        {printf("Declaration -> identifier [COMMA identifier]* COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER \n");}
+        {printf("Declaration -> identifier (COMMA identifiers)? COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER \n");}
 	| idents COLON INTEGER
-	{printf("Declaration -> identifier [COMMA identifier]* COLON INTEGER \n")} 
+	{printf("Declaration -> identifier (COMMA identifiers)? COLON INTEGER \n");} 
         ;
 idents: ident idents
-        {printf(" \n");}
+	| ident
         ;
 ident: IDENT COMMA
-        {printf(" \n");}
         ;
-statementzWsemi: statementz 
+statementzWsemi: statement SEMICOLON statementzWsemi 
 	{printf("\n");}
+	| statement SEMICOLON
 	;
-statementz: statment SEMICOLON statementz
-        {printf(" \n");}
-	| statement SEMICOLON 
-        ;
-statement: --var-- ASSIGN --expression--
-        {printf(" \n");}
+statement: var ASSIGN expression
+        {printf("statement-> var ASSIGN expression\n");}
 	| IF boolExpression THEN statementzWsemi ENDIF
-        {printf(" \n");}
+        {printf("IF -> bool-expression THEN statement (SEMICOLON statements)? ENDIF \n");}
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
+	{printf("IF bool-expression THEN statement (SEMICOLON statements)? ELSE statement (SEMICOLON statements)? ENDIF \n");}
+	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
 	{printf(" \n");}
-	| WHILE boolExpression BEGIN_LOOP statementzWsemi END_LOOP
-	{printf(" \n");}
-        | DO BEGIN_LOOP statementzWsemi END_LOOP WHILE boolExpression
+        | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
         {printf(" \n");}
         | READ varzWcomma
 	{printf(" \n");}
@@ -79,12 +80,12 @@ statement: --var-- ASSIGN --expression--
         ;
 boolExpression: relationAndExpression
         {printf(" \n");}
-	| relationAndExpression OR RelationAndExpression
+	| relationAndExpression OR boolExpression
 	{printf(" \n");} 
         ;
 relationAndExpression: relationExpression
 	{printf(" \n");}
-        | relationExpression AND relationExpression 
+        | relationExpression AND relationAndExpression 
 	{printf(" \n");}
         ;
 relationExpression: expression comp expression
@@ -116,49 +117,45 @@ comp: EQ
         {printf(" \n");}
         | GTE
 	;
-expressionzWcomma: expression
+expressionzWcomma:/*epsilon*/
+	{printf(" \n");} 
+	| expression
         {printf(" \n");}
         |expression expressionCommaChain
+	{printf("\n");}
+	;
 expressionCommaChain: COMMA expression expressionCommaChain
 	| COMMA expression
 	;
-expression: mutiplicativeExpression
+expression: multiplicativeExpression
         {printf(" \n");}
-        | mutiplicativeExpression PLUS mutiplicativeExpression
+        | multiplicativeExpression PLUS expression
         {printf(" \n");}
-        | mutiplicativeExpression PLUS mutiplicativeExpression MINUS mutiplicativeExpression
-        {printf(" \n");}
-        | mutiplicativeExpression MINUS mutiplicativeExpression
+        | multiplicativeExpression MINUS expression
+	{printf(" \n");}
 	;
 multiplicativeExpression: term
         {printf(" \n");}
-        | term MOD term
+        | term MOD multiplicativeExpression
         {printf(" \n");}
-        | term DIV term
+        | term DIV multiplicativeExpression 
         {printf(" \n");}
-        | term MULT term
+        | term MULT multiplicativeExpression 
         {printf(" \n");}
-        | term MULT term DIV term
-        {printf(" \n");}
-        | term MULT term MOD term
-        {printf(" \n");}
-        | term DIV term MOD term
-        {printf(" \n");}
-        | term MULT term DIV term MOD term
 	;
 term: var
         {printf(" \n");}
-        | MINUS var
+        | MINUS var %prec UMINUS
         {printf(" \n");}
         | NUMBER
         {printf(" \n");}
-        | MINUS NUMBER
+        | MINUS NUMBER %prec UMINUS
         {printf(" \n");}
         | L_PAREN expression R_PAREN
         {printf(" \n");}
-        | MINUS L_PAREN expression R_PAREN
+        | MINUS L_PAREN expression R_PAREN %prec UMINUS
         {printf(" \n");}
-        | IDENT L_PAREN expressionzWcommaChai R_PAREN
+        | IDENT L_PAREN expressionzWcomma R_PAREN
 	;
 varzWcomma: var varzWcomma
 	{printf(" \n");}
@@ -183,6 +180,6 @@ int main(int argc, char **argv) {
 }
 
 void yyerror(const char *msg) {
-   printf("** Line %d, position %d: %s\n", c_row, c_col, msg);
+   printf("** Line %d, position %d: %s\n ", row_c, col_c, msg);
 }
 
