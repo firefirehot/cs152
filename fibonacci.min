@@ -6,7 +6,7 @@ endparams
 beginlocals
 
   n : integer;
-  i, j, k: integer;
+  i, j, k: ;
   t : array [20] of integer;
 
 endlocals
@@ -21,11 +21,11 @@ beginbody	## main program
   do 
     beginloop
        t[k] := k;
-       k := k + 1;
+       k := k;
        if k % 2 == 0 then
            continue;
        endif;
-       write t[k-1];
+       write t[k*1];
     endloop
   while k < n;
 

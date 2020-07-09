@@ -93,9 +93,7 @@ extern int yydebug;
     L_SQUARE_BRACKET = 303,
     R_SQUARE_BRACKET = 304,
     ASSIGN = 305,
-    PLUS = 306,
-    MINUS = 307,
-    UMINUS = 308
+    UMINUS = 306
   };
 #endif
 
@@ -104,12 +102,12 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 12 "part2text.y" /* yacc.c:1909  */
+#line 14 "part2text.y" /* yacc.c:1909  */
 
   char* cval;
   int ival;
 
-#line 113 "y.tab.h" /* yacc.c:1909  */
+#line 111 "y.tab.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

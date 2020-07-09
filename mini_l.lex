@@ -3,7 +3,6 @@
 #include "y.tab.h"
 long row_c = 1;
 long col_c = 1;
-
 %}
 
 DIGIT [0-9]
