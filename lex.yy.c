@@ -891,7 +891,7 @@ YY_RULE_SETUP
 case 10:
 YY_RULE_SETUP
 #line 27 "mini_l.lex"
-{col_c = col_c + yyleng; return END_BODY;}
+{col_c = col_c + yyleng; return INTEGER;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP

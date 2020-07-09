@@ -46,15 +46,13 @@ function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEG
 declarationsWsemi: /*epsilon*/
         | declaration SEMICOLON declarationsWsemi
         ;
-declaration: idents COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER
+declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
         {printf("Declaration -> identifier (COMMA identifiers)? COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER \n");}
 	| idents COLON INTEGER
 	{printf("Declaration -> identifier (COMMA identifiers)? COLON INTEGER \n");} 
         ;
-idents: ident idents
-	| ident
-        ;
-ident: IDENT COMMA
+idents: IDENT COMMA idents
+	| IDENT
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi 
 	{printf("\n");}
@@ -63,108 +61,106 @@ statementzWsemi: statement SEMICOLON statementzWsemi
 statement: var ASSIGN expression
         {printf("statement-> var ASSIGN expression\n");}
 	| IF boolExpression THEN statementzWsemi ENDIF
-        {printf("IF -> bool-expression THEN statement (SEMICOLON statements)? ENDIF \n");}
+        {printf("statement -> IF bool-expression THEN statement (SEMICOLON statements)? ENDIF \n");}
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
-	{printf("IF bool-expression THEN statement (SEMICOLON statements)? ELSE statement (SEMICOLON statements)? ENDIF \n");}
+	{printf("statement -> IF bool-expression THEN statement (SEMICOLON statements)? ELSE statement (SEMICOLON statements)? ENDIF \n");}
 	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
-	{printf(" \n");}
+	{printf("statement -> WHILE boolExpression BEGINLOOP statement (SEMICOLON statements)? ENDLOOP \n");}
         | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
-        {printf(" \n");}
+        {printf("statement -> DO BEGINLOOP statement (SEMICOLON statements)? ENDLOOP WHILE boolExpression \n");}
         | READ varzWcomma
-	{printf(" \n");}
+	{printf("statement -> READ var (COMMA vars)? \n");}
         | WRITE varzWcomma 
-        {printf(" \n");}                                                                    
-	| CONTINUE
-        {printf(" \n");}                                                                    
+        {printf("statement -> WRITE var (COMMA vars)? \n");}                                                                    | CONTINUE
+        {printf("statement -> CONTINUE \n");}                                                                    
 	| RETURN expression
+	{printf("statement -> RETURN expression \n");}
         ;
 boolExpression: relationAndExpression
-        {printf(" \n");}
+        {printf("boolExpression -> relationAndExpression \n");}
 	| relationAndExpression OR boolExpression
-	{printf(" \n");} 
+	{printf("boolExpression -> relationAndExpression OR boolExpression \n");} 
         ;
 relationAndExpression: relationExpression
-	{printf(" \n");}
+	{printf("relationAndExpression -> relationExpression \n");}
         | relationExpression AND relationAndExpression 
-	{printf(" \n");}
+	{printf("relationAndExpression -> relationExpression AND relationExpression \n");}
         ;
 relationExpression: expression comp expression
-	{printf(" \n");}
+	{printf("relationExpression -> expression comp expression \n");}
         |  NOT expression comp expression  
-	{printf(" \n");}
+	{printf("relationExpression -> NOT expression comp expression \n");}
         |  TRUE
-	{printf(" \n");}
+	{printf("relationExpression -> TRUE \n");}
         |  NOT TRUE
-	{printf(" \n");}
+	{printf("relationExpression -> NOT TRUE \n");}
         |  FALSE
-	{printf(" \n");}
+	{printf("relationExpression ->  FALSE \n");}
         |  NOT FALSE
-	{printf(" \n");}
+	{printf("relationExpression -> NOT FALSE \n");}
         |  L_PAREN boolExpression R_PAREN
-	{printf(" \n");}
+	{printf("relationExpression -> L_PAREN boolExpression R_PAREN \n");}
         |  NOT L_PAREN boolExpression R_PAREN
-	{printf(" \n");} 
+	{printf("relationExpression -> NOT L_PAREN boolExpression R_PAREN \n");} 
 	;
 comp: EQ
-        {printf(" \n");}
+        {printf("comp -> EQ \n");}
         | NEQ
-        {printf(" \n");}
+        {printf("comp -> NEQ \n");}
         | LT
-        {printf(" \n");}
+        {printf("comp -> LT \n");}
         | GT
-        {printf(" \n");}
+        {printf("comp -> GT \n");}
         | LTE
-        {printf(" \n");}
+        {printf("comp -> LTE \n");}
         | GTE
+	{printf("comp -> GTE \n");}
 	;
-expressionzWcomma:/*epsilon*/
-	{printf(" \n");} 
+expressionzWcomma:/*epsilon*/ 
 	| expression
-        {printf(" \n");}
         |expression expressionCommaChain
-	{printf("\n");}
 	;
 expressionCommaChain: COMMA expression expressionCommaChain
 	| COMMA expression
 	;
 expression: multiplicativeExpression
-        {printf(" \n");}
+        {printf("expression -> multiplicativeExpression \n");}
         | multiplicativeExpression PLUS expression
-        {printf(" \n");}
+        {printf("expression -> multiplicativeExpression PLUS expression \n");}
         | multiplicativeExpression MINUS expression
-	{printf(" \n");}
+	{printf("expression -> mulitplicativeExpression MINUS expression \n");}
 	;
 multiplicativeExpression: term
-        {printf(" \n");}
+        {printf("multiplicativeExpression -> term \n");}
         | term MOD multiplicativeExpression
-        {printf(" \n");}
+        {printf("multiplicativeExpression -> term MOD multiplicativeExpression \n");}
         | term DIV multiplicativeExpression 
-        {printf(" \n");}
+        {printf("multiplicativeExpression -> term DIV multiplicativeExpression \n");}
         | term MULT multiplicativeExpression 
-        {printf(" \n");}
+        {printf("multiplicativeExpression -> term MULT multiplicativeExpression \n");}
 	;
 term: var
-        {printf(" \n");}
+        {printf("term -> var \n");}
         | MINUS var %prec UMINUS
-        {printf(" \n");}
+        {printf("term -> MINUS var \n");}
         | NUMBER
-        {printf(" \n");}
-        | MINUS NUMBER %prec UMINUS
-        {printf(" \n");}
+        {printf("term -> NUMBER \n");}
+        | MINUS NUMBER %prec UMINUS 
+        {printf("term -> MINUS NUMBER \n");}
         | L_PAREN expression R_PAREN
-        {printf(" \n");}
+        {printf("term -> L_PAREN expression R_PAREN \n");}
         | MINUS L_PAREN expression R_PAREN %prec UMINUS
-        {printf(" \n");}
+        {printf("term -> MINUS L_PAREN expression R_PAREN \n");}
         | IDENT L_PAREN expressionzWcomma R_PAREN
+	{printf("term -> IDENT L_PAREN (expression)? (COMMA expressions)? R_PAREN \n");}
 	;
-varzWcomma: var varzWcomma
-	{printf(" \n");}
+varzWcomma: var COMMA varzWcomma
 	| var
-	{printf(" \n");}
 	;
 var: IDENT
-	{printf(" \n");}
+	{printf("var -> IDENT \n");}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
+	{printf("var -> IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET");}
 	;
 %%
 

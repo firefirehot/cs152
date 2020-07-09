@@ -24,7 +24,7 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 "endlocals" {col_c = col_c + yyleng; return END_LOCALS;}
 "beginbody" {col_c = col_c + yyleng;return BEGIN_BODY;}
 "endbody" {col_c = col_c + yyleng; return END_BODY;}
-"integer" {col_c = col_c + yyleng; return END_BODY;}
+"integer" {col_c = col_c + yyleng; return INTEGER;}
 "array" {col_c = col_c + yyleng; return ARRAY;}
 "of" {col_c = col_c + yyleng;return OF;}
 "if" {col_c = col_c + yyleng; return IF;}
