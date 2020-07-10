@@ -1,7 +1,6 @@
-parse: mini_l.lex part2text.y
-	bison -v -d --file-prefix=y part2text.y 
+parse: mini_l.lex mini_l.y
+	bison -v -d --file-prefix=y mini_l.y 
 	flex mini_l.lex
-	gcc -o lexer y.tab.c lex.yy.c -lfl
-	cat fibonacci.min | lexer
+	gcc -o parser y.tab.c lex.yy.c -lfl
 clean:
 	rm -f lex.yy.c y.tab.* y.output *.o calc

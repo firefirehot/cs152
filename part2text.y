@@ -44,10 +44,12 @@ functions: function
         ;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi END_BODY
         {printf("function-> FUNCTION IDENT SEMICOLON BEGIN_PARAMS (declaration SEMICOLON declarations)? END_PARAMS BEGIN_LOCALS (declaration SEMICOLON declarations)? END_LOCALS BEGIN_BODY statement SEMICOLON statements END_BODY \n");}
+	| FUNCTION error
         ;
 declarationsWsemi: /*epsilon*/
         | declaration SEMICOLON declarationsWsemi
 	| error SEMICOLON
+	| declaration error declarationsWsemi
         ;
 declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
         {printf("Declaration -> identifier (COMMA identifiers)? COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER \n");}
@@ -59,6 +61,8 @@ idents: IDENT COMMA idents
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi 
 	| statement SEMICOLON
+	| error SEMICOLON
+	| statement error
 	;
 statement: var ASSIGN expression
         {printf("statement-> var ASSIGN expression\n");}

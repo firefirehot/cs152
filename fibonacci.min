@@ -6,7 +6,7 @@ endparams
 beginlocals
 
   n : integer;
-  i, j, k: ;
+  i, j, k: integer;
   t : array [20] of integer;
 
 endlocals
@@ -20,19 +20,19 @@ beginbody	## main program
   
   do 
     beginloop
-       t[k] := k;
-       k := k;
+       t[k] := k;;;;
+       k := k;;;;
        if k % 2 == 0 then
            continue;
        endif;
-       write t[k*1];
+       write t[k-1];
     endloop
   while k < n;
 
   if i<j and j < n and i>=0 then
-     t[i] := i * 2;
+     
      t[j] := j * 2;
-     k := t[i];
+     k := t[i];;;;
      t[i] := t[j];
      t[j] := k;
   else
