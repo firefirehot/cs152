@@ -1,25 +1,52 @@
 %{
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
- void yyerror(const char *msg);
+%}
+
+%skeleton "lalr1.cc"
+%require "3.0.4"
+%defines
+%define api.token.constructor
+%define api.value.type variant
+%define parse.error verbose
+%locations
+
+
+%code requires
+{
+ #include <list>
+ #include <functional>
+ #include <string>
+using namespace std;
+/*ENTER STRUCT here */
+
+}
+
+%code
+{
+
+#include "parser.tab.hh"
+
+	/* you may need these header files 
+	 * add more header file if you need more
+	 */
+#include <sstream>
+#include <map>
+#include <regex>
+#include <set>
+yy::parser::symbol_type yylex();
+void yyerror(const char *msg);
  extern long row_c;
  extern long col_c;
  extern FILE * yyin;
 void yyerror(const char * msg);
-char * errorArray[30];
+string errorArray[30];
 int errorArrayCount = 0;
-%}
-
-%union{
-  char* cval;
-  int ival;
+bool no_error = true;
 }
 
-%error-verbose
+%token END 0 "end of file";
 %token FUNCTION BEGIN_PARAMS END_PARAMS BEGIN_LOCALS END_LOCALS BEGIN_BODY END_BODY INTEGER ARRAY OF IF THEN ENDIF ELSE WHILE DO BEGINLOOP ENDLOOP CONTINUE READ WRITE AND OR NOT TRUE FALSE RETURN SUB ADD MULT DIV MOD EQ NEQ LT GT LTE GTE IDENT NUMBER SEMICOLON COLON COMMA L_PAREN R_PAREN L_SQUARE_BRACKET R_SQUARE_BRACKET ASSIGN
-%type<cval> IDENT
-%type<ival> NUMBER
+%type<string> IDENT
+%type<int> NUMBER
 %right ASSIGN
 %left OR AND
 %right NOT
@@ -29,98 +56,115 @@ int errorArrayCount = 0;
 %right UMINUS
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
+%type <string> program function declaration statement declarationsWsemi statementzWsemi  
 
-%start program
 
- 
+
 %%
-program:/*epsilon*/
-	{printf("Program->epsilon \n");} 
-	| functions
-	{printf("Program->FUNCTION functions \n");}
+
+%start prog_start;
+
+prog_start: program {if(no_error) cout << $1 << endl;}
 	;
-functions: function
-	| function functions
-        ;
+
+program:/*epsilon*/
+	{$$ = "";} 
+	| function program
+	{$$ = $1 + "\n" + $2;}
+	;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi END_BODY
-        {printf("function-> FUNCTION IDENT SEMICOLON BEGIN_PARAMS (declaration SEMICOLON declarations)? END_PARAMS BEGIN_LOCALS (declaration SEMICOLON declarations)? END_LOCALS BEGIN_BODY statement SEMICOLON statements END_BODY \n");}
+	{$$ = "func" + $2 + "\n";
+	$$ += $5;
+	$$ += $8;
+	$$ += $11;
+	$$ += "endfunc \n";
+	}
 	| FUNCTION error
+	{$$ = "";}
         ;
 declarationsWsemi: /*epsilon*/
+	{$$ = "";}
         | declaration SEMICOLON declarationsWsemi
+	{
+	$$ = $1;
+	}
 	| error SEMICOLON
+	{$$ = "";}
 	| declaration error declarationsWsemi
         ;
 declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-        {printf("Declaration -> identifier (COMMA identifiers)? COLON ARRAY R_SQUARE_BRACKET NUMBER L_SQUARE_BRACKET OF INTEGER \n");}
+	{$$ = "declaration \n";}
 	| idents COLON INTEGER
-	{printf("Declaration -> identifier (COMMA identifiers)? COLON INTEGER \n");} 
-        ;
+        {$$ = "declaration \n";}
+	;
 idents: IDENT COMMA idents
 	| IDENT
         ;
-statementzWsemi: statement SEMICOLON statementzWsemi 
+statementzWsemi: statement SEMICOLON statementzWsemi
+	{$$ = $1;} 
 	| statement SEMICOLON
+	{$$ = $1;}
 	| error SEMICOLON
+	{$$ = "";}
 	| statement error
+	{$$ = "";}
 	;
 statement: var ASSIGN expression
-        {printf("statement-> var ASSIGN expression\n");}
+        {$$ = "statement \n";}
 	| IF boolExpression THEN statementzWsemi ENDIF
-        {printf("statement -> IF bool-expression THEN statement (SEMICOLON statements)? ENDIF \n");}
+	{$$ = "statement \n";}  
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
-	{printf("statement -> IF bool-expression THEN statement (SEMICOLON statements)? ELSE statement (SEMICOLON statements)? ENDIF \n");}
+	{$$ = "statement \n";}  
 	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
-	{printf("statement -> WHILE boolExpression BEGINLOOP statement (SEMICOLON statements)? ENDLOOP \n");}
+	{$$ = "statement \n";}  
         | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
-        {printf("statement -> DO BEGINLOOP statement (SEMICOLON statements)? ENDLOOP WHILE boolExpression \n");}
+	{$$ = "statement \n";}  
         | READ varzWcomma
-	{printf("statement -> READ var (COMMA vars)? \n");}
+	{$$ = "statement \n";}  
         | WRITE varzWcomma 
-        {printf("statement -> WRITE var (COMMA vars)? \n");}                                                                    | CONTINUE
-        {printf("statement -> CONTINUE \n");}                                                                    
+	{$$ = "statement \n";}  
 	| RETURN expression
-	{printf("statement -> RETURN expression \n");}
+	{$$ = "statement \n";}  
         ;
 boolExpression: relationAndExpression
-        {printf("boolExpression -> relationAndExpression \n");}
+        //{cout << "boolExpression -> relationAndExpression \n";}
 	| relationAndExpression OR boolExpression
-	{printf("boolExpression -> relationAndExpression OR boolExpression \n");} 
+	//{cout << "boolExpression -> relationAndExpression OR boolExpression \n";} 
         ;
 relationAndExpression: relationExpression
-	{printf("relationAndExpression -> relationExpression \n");}
+	//{cout << "relationAndExpression -> relationExpression \n";}
         | relationExpression AND relationAndExpression 
-	{printf("relationAndExpression -> relationExpression AND relationExpression \n");}
+	//{cout << "relationAndExpression -> relationExpression AND relationExpression \n";}
         ;
 relationExpression: expression comp expression
-	{printf("relationExpression -> expression comp expression \n");}
+	//{cout << "relationExpression -> expression comp expression \n";}
         |  NOT expression comp expression  
-	{printf("relationExpression -> NOT expression comp expression \n");}
+	//{cout << "relationExpression -> NOT expression comp expression \n";}
         |  TRUE
-	{printf("relationExpression -> TRUE \n");}
+	//{cout << "relationExpression -> TRUE \n";}
         |  NOT TRUE
-	{printf("relationExpression -> NOT TRUE \n");}
+	//{cout << "relationExpression -> NOT TRUE \n";}
         |  FALSE
-	{printf("relationExpression -> FALSE \n");}
+	//{cout << "relationExpression -> FALSE \n";}
         |  NOT FALSE
-	{printf("relationExpression -> NOT FALSE \n");}
+	//{cout << "relationExpression -> NOT FALSE \n";}
         |  L_PAREN boolExpression R_PAREN
-	{printf("relationExpression -> L_PAREN boolExpression R_PAREN \n");}
+	//{cout << "relationExpression -> L_PAREN boolExpression R_PAREN \n";}
         |  NOT L_PAREN boolExpression R_PAREN
-	{printf("relationExpression -> NOT L_PAREN boolExpression R_PAREN \n");} 
+	//{cout << "relationExpression -> NOT L_PAREN boolExpression R_PAREN \n";} 
 	;
 comp: EQ
-        {printf("comp -> EQ \n");}
+        //{cout << "comp -> EQ \n";}
         | NEQ
-        {printf("comp -> NEQ \n");}
+        //{cout << "comp -> NEQ \n";}
         | LT
-        {printf("comp -> LT \n");}
+        //{cout << "comp -> LT \n";}
         | GT
-        {printf("comp -> GT \n");}
+        //{cout << "comp -> GT \n";}
         | LTE
-        {printf("comp -> LTE \n");}
+        //{cout << "comp -> LTE \n";}
         | GTE
-	{printf("comp -> GTE \n");}
+	//{cout << "comp -> GTE \n";}
 	;
 expressionzWcomma:/*epsilon*/ 
 	| expression
@@ -130,72 +174,69 @@ expressionCommaChain: COMMA expression expressionCommaChain
 	| COMMA expression
 	;
 expression: multiplicativeExpression
-        {printf("expression -> multiplicativeExpression \n");}
+       // {cout << "expression -> multiplicativeExpression \n";}
         | multiplicativeExpression ADD expression
-        {printf("expression -> multiplicativeExpression PLUS expression \n");}
+        //{cout << "expression -> multiplicativeExpression PLUS expression \n";}
         | multiplicativeExpression SUB expression
-	{printf("expression -> mulitplicativeExpression MINUS expression \n");}
+	//{cout << "expression -> mulitplicativeExpression MINUS expression \n";}
 	;
 multiplicativeExpression: term
-        {printf("multiplicativeExpression -> term \n");}
+        //{cout << "multiplicativeExpression -> term \n";}
         | term MOD multiplicativeExpression
-        {printf("multiplicativeExpression -> term MOD multiplicativeExpression \n");}
+        //{cout << "multiplicativeExpression -> term MOD multiplicativeExpression \n";}
         | term DIV multiplicativeExpression 
-        {printf("multiplicativeExpression -> term DIV multiplicativeExpression \n");}
+        //{cout << "multiplicativeExpression -> term DIV multiplicativeExpression \n";}
         | term MULT multiplicativeExpression 
-        {printf("multiplicativeExpression -> term MULT multiplicativeExpression \n");}
+        //{cout << "multiplicativeExpression -> term MULT multiplicativeExpression \n";}
 	;
 term: var
-        {printf("term -> var \n");}
+        //{cout << "term -> var \n";}
         | SUB var %prec UMINUS
-        {printf("term -> SUB var \n");}
+        //{cout << "term -> SUB var \n";}
         | NUMBER
-        {printf("term -> NUMBER \n");}
+        //{cout << "term -> NUMBER \n";}
         | SUB NUMBER %prec UMINUS 
-        {printf("term -> SUB NUMBER \n");}
+        //{cout << "term -> SUB NUMBER \n";}
         | L_PAREN expression R_PAREN
-        {printf("term -> L_PAREN expression R_PAREN \n");}
+        //{cout << "term -> L_PAREN expression R_PAREN \n";}
         | SUB L_PAREN expression R_PAREN %prec UMINUS
-        {printf("term -> SUB L_PAREN expression R_PAREN \n");}
+        //{cout << "term -> SUB L_PAREN expression R_PAREN \n";}
         | IDENT L_PAREN expressionzWcomma R_PAREN
-	{printf("term -> IDENT %s L_PAREN (expression)? (COMMA expressions)? R_PAREN \n", $1);}
+	//{cout << "term -> IDENT L_PAREN (expression)? (COMMA expressions)? R_PAREN \n";}
 	;
 varzWcomma: var COMMA varzWcomma
 	| var
 	;
 var: IDENT
-	{printf("var -> IDENT %s \n", $1);}
+	//{cout << "var -> IDENT %s \n";}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-	{printf("var -> IDENT %s L_SQUARE_BRACKET expression R_SQUARE_BRACKET \n", $1);}
+	//{cout << "var -> IDENT %s L_SQUARE_BRACKET expression R_SQUARE_BRACKET \n";}
 	;
+
+
 %%
 
-int main(int argc, char **argv) {
-   if (argc > 1) {
-      yyin = fopen(argv[1], "r");
-      if (yyin == NULL){
-         printf("syntax: %s filename\n", argv[0]);
-      }//end if
-   }//end if
-   yyparse(); // Calls yylex() for tokens.
-    int count = 0;
-        while( count < errorArrayCount){
-                printf("%s \n", errorArray[count]);
-		free(errorArray[count]);
-                count++;
+   int main(int argc, char *argv[])
+{
+	yy::parser p; 
+	
+        for(int count = 0; count < errorArrayCount; count++){
+                cout << (errorArray[count]);
        }
-   return 0;
+   return p.parse();
+}
+
+void yy::parser::error(const yy::location& l, const std::string& m)
+{
+	std::cerr << l << ": " << m << std::endl;
 }
 
 
 void yyerror(const char *msg) {
-	char  tempChar[200];
-	sprintf(tempChar,"** Line %d, position %d: %s\n ", row_c, col_c, msg);
+	no_error = false;
    if(errorArrayCount < 30){
-	errorArray[errorArrayCount] = malloc(sizeof(tempChar));
-	strcpy(errorArray[errorArrayCount], tempChar);
+	errorArray[errorArrayCount] = "Line " + to_string(row_c) + " position " + to_string(col_c) + ": " + msg+ "\n";
 	errorArrayCount++;	
 }
-printf("%s \n", tempChar);
 }
 

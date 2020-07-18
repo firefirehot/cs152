@@ -1,8 +1,17 @@
 %{
-//c code
+#include <iostream>
 #include "y.tab.h"
+#define YY_DECL yy::parser::symbol_type yylex()
+#include "parser.tab.hh"
+static yy::location loc;
 long row_c = 1;
 long col_c = 1;
+%}
+
+%option noyywrap 
+
+%{
+#define YY_USER_ACTION loc.columns(yyleng);
 %}
 
 DIGIT [0-9]
@@ -13,62 +22,66 @@ BADIDTWO [a-zA-Z][a-zA-Z0-9_]*_
 
 %%
 
+%{
+loc.step(); 
+%}
 
-{DIGIT}+ { col_c = col_c + yyleng; yylval.ival = atoi(yytext); return NUMBER;}
+
+{DIGIT}+ { col_c = col_c + yyleng; return yy:parser::make_NUMBER(atoi(yytext),loc);}
 ##.* {col_c = col_c + yyleng;}
-"function" {col_c = col_c + yyleng; return FUNCTION;}
-"beginparams" {col_c = col_c + yyleng;return BEGIN_PARAMS;}
-"endparams" {col_c = col_c + yyleng;return END_PARAMS;}
-"beginlocals" {col_c = col_c + yyleng; return BEGIN_LOCALS;}
-"endlocals" {col_c = col_c + yyleng; return END_LOCALS;}
-"beginbody" {col_c = col_c + yyleng;return BEGIN_BODY;}
-"endbody" {col_c = col_c + yyleng; return END_BODY;}
-"integer" {col_c = col_c + yyleng; return INTEGER;}
-"array" {col_c = col_c + yyleng; return ARRAY;}
-"of" {col_c = col_c + yyleng;return OF;}
-"if" {col_c = col_c + yyleng; return IF;}
-"then" {col_c = col_c + yyleng; return THEN;}
-"endif" {col_c = col_c + yyleng; return ENDIF;}
-"else" {col_c = col_c + yyleng; return ELSE;}
-"while" {col_c = col_c + yyleng; return WHILE;}
-"do" {col_c = col_c + yyleng; return DO;}
-"beginloop" {col_c = col_c + yyleng; return BEGINLOOP;}
-"endloop" {col_c = col_c + yyleng; return ENDLOOP;}
-"continue" {col_c = col_c + yyleng; return CONTINUE;}
-"read" {col_c = col_c + yyleng; return READ;}
-"write" {col_c = col_c + yyleng; return WRITE;}
-"and" {col_c = col_c + yyleng; return AND;}
-"or" {col_c = col_c + yyleng; return OR;} 
-"not" {col_c = col_c + yyleng; return NOT;} 
-"true" {col_c = col_c + yyleng; return TRUE;} 
-"false" {col_c = col_c + yyleng; return FALSE;} 
-"return" {col_c = col_c + yyleng; return RETURN;} 
-"-" {col_c = col_c + yyleng; return SUB;} 
-"+" {col_c = col_c + yyleng; return ADD;} 
-"*" {col_c = col_c + yyleng; return MULT;} 
-"/" {col_c = col_c + yyleng; return DIV;} 
-"%" {col_c = col_c + yyleng; return MOD;} 
-"==" {col_c = col_c + yyleng; return EQ;} 
-"<>" {col_c = col_c + yyleng; return NEQ;} 
-"<" {col_c = col_c + yyleng; return LT;} 
-">" {col_c = col_c + yyleng; return GT;} 
-"<=" {col_c = col_c + yyleng; return LTE;} 
-">=" {col_c = col_c + yyleng; return GTE;} 
-{ID} {col_c = col_c + yyleng; yylval.cval = yytext; return IDENT;} 
-";" {col_c = col_c + yyleng; return SEMICOLON;} 
-":" {col_c = col_c + yyleng; return COLON;} 
-"," {col_c = col_c + yyleng; return COMMA;} 
-"(" {col_c = col_c + yyleng; return L_PAREN;} 
-")" {col_c = col_c + yyleng; return R_PAREN;} 
-"]" {col_c = col_c + yyleng; return R_SQUARE_BRACKET;} 
-"[" {col_c = col_c + yyleng; return L_SQUARE_BRACKET;}  
-":=" {col_c = col_c + yyleng; return ASSIGN;} 
+"function" {col_c = col_c + yyleng; return yy:parser::make_FUNCTION(loc);}
+"beginparams" {col_c = col_c + yyleng;return yy:parser::make_BEGIN_PARAMS(loc);}
+"endparams" {col_c = col_c + yyleng;return yy:parser::make_END_PARAMS(loc);}
+"beginlocals" {col_c = col_c + yyleng; return yy:parser::make_BEGIN_LOCALS(loc);}
+"endlocals" {col_c = col_c + yyleng; return parser::make_END_LOCALS(loc);}
+"beginbody" {col_c = col_c + yyleng;return yy:parser::make_BEGIN_BODY(loc);}
+"endbody" {col_c = col_c + yyleng; return yy:parser::make_END_BODY(loc);}
+"integer" {col_c = col_c + yyleng; return yy:parser::make_INTEGER(loc);}
+"array" {col_c = col_c + yyleng; return yy:parser::make_ARRAY(loc);}
+"of" {col_c = col_c + yyleng;return yy:parser::make_OF(loc);}
+"if" {col_c = col_c + yyleng; return yy:parser::make_IF(loc);}
+"then" {col_c = col_c + yyleng; return yy:parser::make_THEN(loc);}
+"endif" {col_c = col_c + yyleng; return yy:parser::make_ENDIF(loc);}
+"else" {col_c = col_c + yyleng; return yy:parser::make_ELSE(loc);}
+"while" {col_c = col_c + yyleng; return yy:parser::make_WHILE(loc);}
+"do" {col_c = col_c + yyleng; return yy:parser::make_DO(loc);}
+"beginloop" {col_c = col_c + yyleng; return yy:parser::make_BEGINLOOP(loc);}
+"endloop" {col_c = col_c + yyleng; return yy:parser::make_ENDLOOP(loc);}
+"continue" {col_c = col_c + yyleng; return yy:parser::make_CONTINUE(loc);}
+"read" {col_c = col_c + yyleng; return yy:parser::make_READ(loc);}
+"write" {col_c = col_c + yyleng; return yy:parser::make_WRITE(loc);}
+"and" {col_c = col_c + yyleng; return yy:parser::make_AND(loc);}
+"or" {col_c = col_c + yyleng; return yy:parser::make_OR(loc);} 
+"not" {col_c = col_c + yyleng; return yy:parser::make_NOT(loc);} 
+"true" {col_c = col_c + yyleng; return yy:parser::make_TRUE(loc);} 
+"false" {col_c = col_c + yyleng; return yy:parser::make_FALSE(loc);} 
+"return" {col_c = col_c + yyleng; return yy:parser::make_RETURN(loc);} 
+"-" {col_c = col_c + yyleng; return yy:parser::make_SUB(loc);} 
+"+" {col_c = col_c + yyleng; return yy:parser::make_ADD(loc);} 
+"*" {col_c = col_c + yyleng; return yy:parser::make_MULT(loc);} 
+"/" {col_c = col_c + yyleng; return yy:parser::make_DIV(loc);} 
+"%" {col_c = col_c + yyleng; return yy:parser::make_MOD(loc);} 
+"==" {col_c = col_c + yyleng; return yy:parser::make_EQ(loc);} 
+"<>" {col_c = col_c + yyleng; return yy:parser::make_NEQ(loc);} 
+"<" {col_c = col_c + yyleng; return yy:parser::make_LT(loc);} 
+">" {col_c = col_c + yyleng; return yy:parser::make_GT(loc);} 
+"<=" {col_c = col_c + yyleng; return yy:parser::make_LTE(loc);} 
+">=" {col_c = col_c + yyleng; return yy:parser::make_GTE(loc);} 
+{ID} {col_c = col_c + yyleng; return yy:parser::make_IDENT(yytext, loc);} 
+";" {col_c = col_c + yyleng; return yy:parser::make_SEMICOLON(loc);} 
+":" {col_c = col_c + yyleng; return yy:parser::make_COLON(loc);} 
+"," {col_c = col_c + yyleng; return yy:parser::make_COMMA(loc);} 
+"(" {col_c = col_c + yyleng; return yy:parser::make_L_PAREN(loc);} 
+")" {col_c = col_c + yyleng; return yy:parser::make_R_PAREN(loc);} 
+"]" {col_c = col_c + yyleng; return yy:parser::make_R_SQUARE_BRACKET(loc);} 
+"[" {col_c = col_c + yyleng; return yy:parser::make_L_SQUARE_BRACKET(loc);}  
+":=" {col_c = col_c + yyleng; return yy:parser::make_ASSIGN(loc);} 
 {BADIDONE} {printf("INVALID IDENTIFIER");exit(0);}
 {BADIDTWO} {printf("INVALID IDENTIFIER at row %d and column %d. User entered %s \n ", col_c,row_c, yytext);exit(0);}
 \n {row_c = row_c + 1; col_c = 1;}
 [ \t]+ {col_c = col_c + yyleng;}
 
-
+ <<EOF>>	{return yy::parser::make_END(loc);}
 . {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", row_c,col_c,yytext); exit(0);}
 %%
 
