@@ -573,15 +573,14 @@ char *yytext;
 #line 1 "mini_l.lex"
 #line 2 "mini_l.lex"
 #include <iostream>
-#include "y.tab.h"
 #define YY_DECL yy::parser::symbol_type yylex()
-#include "parser.tab.hh"
+#include "parser.tab.h"
 static yy::location loc;
 long row_c = 1;
 long col_c = 1;
-#line 14 "mini_l.lex"
+#line 13 "mini_l.lex"
 #define YY_USER_ACTION loc.columns(yyleng);
-#line 585 "lex.yy.c"
+#line 584 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -763,7 +762,7 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
     
-#line 23 "mini_l.lex"
+#line 22 "mini_l.lex"
 
 
 
@@ -771,7 +770,7 @@ loc.step();
 
 
 
-#line 775 "lex.yy.c"
+#line 774 "lex.yy.c"
 
 	if ( !(yy_init) )
 		{
@@ -856,285 +855,285 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 30 "mini_l.lex"
-{ col_c = col_c + yyleng; return yy:parser::make_NUMBER(atoi(yytext),loc);}
+#line 29 "mini_l.lex"
+{ col_c = col_c + yyleng; return yy::parser::make_NUMBER(atoi(yytext),loc);}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 31 "mini_l.lex"
+#line 30 "mini_l.lex"
 {col_c = col_c + yyleng;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 32 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_FUNCTION(loc);}
+#line 31 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_FUNCTION(loc);}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 33 "mini_l.lex"
-{col_c = col_c + yyleng;return yy:parser::make_BEGIN_PARAMS(loc);}
+#line 32 "mini_l.lex"
+{col_c = col_c + yyleng;return yy::parser::make_BEGIN_PARAMS(loc);}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 34 "mini_l.lex"
-{col_c = col_c + yyleng;return yy:parser::make_END_PARAMS(loc);}
+#line 33 "mini_l.lex"
+{col_c = col_c + yyleng;return yy::parser::make_END_PARAMS(loc);}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 35 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_BEGIN_LOCALS(loc);}
+#line 34 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_BEGIN_LOCALS(loc);}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 36 "mini_l.lex"
-{col_c = col_c + yyleng; return parser::make_END_LOCALS(loc);}
+#line 35 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_END_LOCALS(loc);}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 37 "mini_l.lex"
-{col_c = col_c + yyleng;return yy:parser::make_BEGIN_BODY(loc);}
+#line 36 "mini_l.lex"
+{col_c = col_c + yyleng;return yy::parser::make_BEGIN_BODY(loc);}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 38 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_END_BODY(loc);}
+#line 37 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_END_BODY(loc);}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 39 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_INTEGER(loc);}
+#line 38 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_INTEGER(loc);}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 40 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ARRAY(loc);}
+#line 39 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ARRAY(loc);}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 41 "mini_l.lex"
-{col_c = col_c + yyleng;return yy:parser::make_OF(loc);}
+#line 40 "mini_l.lex"
+{col_c = col_c + yyleng;return yy::parser::make_OF(loc);}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 42 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_IF(loc);}
+#line 41 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_IF(loc);}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 43 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_THEN(loc);}
+#line 42 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_THEN(loc);}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 44 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ENDIF(loc);}
+#line 43 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ENDIF(loc);}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 45 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ELSE(loc);}
+#line 44 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ELSE(loc);}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 46 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_WHILE(loc);}
+#line 45 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_WHILE(loc);}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 47 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_DO(loc);}
+#line 46 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_DO(loc);}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 48 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_BEGINLOOP(loc);}
+#line 47 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_BEGINLOOP(loc);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 49 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ENDLOOP(loc);}
+#line 48 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ENDLOOP(loc);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 50 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_CONTINUE(loc);}
+#line 49 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_CONTINUE(loc);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 51 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_READ(loc);}
+#line 50 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_READ(loc);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 52 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_WRITE(loc);}
+#line 51 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_WRITE(loc);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 53 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_AND(loc);}
+#line 52 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_AND(loc);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 54 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_OR(loc);} 
+#line 53 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_OR(loc);} 
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 55 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_NOT(loc);} 
+#line 54 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_NOT(loc);} 
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 56 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_TRUE(loc);} 
+#line 55 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_TRUE(loc);} 
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 57 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_FALSE(loc);} 
+#line 56 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_FALSE(loc);} 
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 58 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_RETURN(loc);} 
+#line 57 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_RETURN(loc);} 
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 59 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_SUB(loc);} 
+#line 58 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_SUB(loc);} 
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 60 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ADD(loc);} 
+#line 59 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ADD(loc);} 
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 61 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_MULT(loc);} 
+#line 60 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_MULT(loc);} 
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
-#line 62 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_DIV(loc);} 
+#line 61 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_DIV(loc);} 
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
-#line 63 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_MOD(loc);} 
+#line 62 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_MOD(loc);} 
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
-#line 64 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_EQ(loc);} 
+#line 63 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_EQ(loc);} 
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
-#line 65 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_NEQ(loc);} 
+#line 64 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_NEQ(loc);} 
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
-#line 66 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_LT(loc);} 
+#line 65 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_LT(loc);} 
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
-#line 67 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_GT(loc);} 
+#line 66 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_GT(loc);} 
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
-#line 68 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_LTE(loc);} 
+#line 67 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_LTE(loc);} 
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
-#line 69 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_GTE(loc);} 
+#line 68 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_GTE(loc);} 
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
-#line 70 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_IDENT(yytext, loc);} 
+#line 69 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_IDENT(yytext, loc);} 
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
-#line 71 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_SEMICOLON(loc);} 
+#line 70 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_SEMICOLON(loc);} 
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
-#line 72 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_COLON(loc);} 
+#line 71 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_COLON(loc);} 
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
-#line 73 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_COMMA(loc);} 
+#line 72 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_COMMA(loc);} 
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
-#line 74 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_L_PAREN(loc);} 
+#line 73 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_L_PAREN(loc);} 
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
-#line 75 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_R_PAREN(loc);} 
+#line 74 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_R_PAREN(loc);} 
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
-#line 76 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_R_SQUARE_BRACKET(loc);} 
+#line 75 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_R_SQUARE_BRACKET(loc);} 
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
-#line 77 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_L_SQUARE_BRACKET(loc);}  
+#line 76 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_L_SQUARE_BRACKET(loc);}  
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
-#line 78 "mini_l.lex"
-{col_c = col_c + yyleng; return yy:parser::make_ASSIGN(loc);} 
+#line 77 "mini_l.lex"
+{col_c = col_c + yyleng; return yy::parser::make_ASSIGN(loc);} 
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
-#line 79 "mini_l.lex"
+#line 78 "mini_l.lex"
 {printf("INVALID IDENTIFIER");exit(0);}
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 80 "mini_l.lex"
+#line 79 "mini_l.lex"
 {printf("INVALID IDENTIFIER at row %d and column %d. User entered %s \n ", col_c,row_c, yytext);exit(0);}
 	YY_BREAK
 case 52:
 /* rule 52 can match eol */
 YY_RULE_SETUP
-#line 81 "mini_l.lex"
+#line 80 "mini_l.lex"
 {row_c = row_c + 1; col_c = 1;}
 	YY_BREAK
 case 53:
 YY_RULE_SETUP
-#line 82 "mini_l.lex"
+#line 81 "mini_l.lex"
 {col_c = col_c + yyleng;}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 84 "mini_l.lex"
+#line 83 "mini_l.lex"
 {return yy::parser::make_END(loc);}
 	YY_BREAK
 case 54:
 YY_RULE_SETUP
-#line 85 "mini_l.lex"
+#line 84 "mini_l.lex"
 {printf("unrecognized symbol at line %d and column %d. User entered: %s \n", row_c,col_c,yytext); exit(0);}
 	YY_BREAK
 case 55:
 YY_RULE_SETUP
-#line 86 "mini_l.lex"
+#line 85 "mini_l.lex"
 ECHO;
 	YY_BREAK
-#line 1138 "lex.yy.c"
+#line 1137 "lex.yy.c"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -2126,7 +2125,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 86 "mini_l.lex"
+#line 85 "mini_l.lex"
 
 
 

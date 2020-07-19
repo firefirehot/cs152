@@ -281,6 +281,7 @@ namespace yy {
       // function
       // declarationsWsemi
       // declaration
+      // idents
       // statementzWsemi
       // statement
       char dummy2[sizeof(string)];
@@ -963,6 +964,7 @@ namespace yy {
       case 55: // function
       case 56: // declarationsWsemi
       case 57: // declaration
+      case 58: // idents
       case 59: // statementzWsemi
       case 60: // statement
         value.copy< string > (other.value);
@@ -994,6 +996,7 @@ namespace yy {
       case 55: // function
       case 56: // declarationsWsemi
       case 57: // declaration
+      case 58: // idents
       case 59: // statementzWsemi
       case 60: // statement
         value.copy< string > (v);
@@ -1063,6 +1066,7 @@ namespace yy {
       case 55: // function
       case 56: // declarationsWsemi
       case 57: // declaration
+      case 58: // idents
       case 59: // statementzWsemi
       case 60: // statement
         value.template destroy< string > ();
@@ -1100,6 +1104,7 @@ namespace yy {
       case 55: // function
       case 56: // declarationsWsemi
       case 57: // declaration
+      case 58: // idents
       case 59: // statementzWsemi
       case 60: // statement
         value.move< string > (s.value);
@@ -1473,7 +1478,7 @@ namespace yy {
 
 
 } // yy
-#line 1477 "parser.tab.h" // lalr1.cc:377
+#line 1482 "parser.tab.h" // lalr1.cc:377
 
 
 
