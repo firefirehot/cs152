@@ -16,8 +16,10 @@
  #include <functional>
  #include <string>
 using namespace std;
-/*ENTER STRUCT here */
-
+struct exp_str{
+	string code;
+	string place;
+};
 }
 
 %code
@@ -33,14 +35,15 @@ using namespace std;
 #include <regex>
 #include <set>
 yy::parser::symbol_type yylex();
-void yyerror(const char *msg);
+void myerror(string msg);
 extern long row_c;
 extern long col_c;
  extern FILE * yyin;
 void yyerror(const char * msg);
 string errorArray[30];
-int errorArrayCount = 0;
 bool no_error = true;
+long tempNum = 0;
+map <string,int> varTable;
 }
 
 %token END 0 "end of file";
@@ -57,8 +60,7 @@ bool no_error = true;
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
 %type <string> program function declaration statement declarationsWsemi statementzWsemi idents 
-
-
+%type<exp_str> expression multiplicativeExpression term var expressionzWcomma
 
 %%
 
@@ -72,7 +74,7 @@ program:/*epsilon*/
 	| function program
 	{$$ = $1 + "\n" + $2;}
 	;
-function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi END_BODY
+function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi endTrigger
 	{$$ = "func " + $2 + "\n";
 	$$ += $5;
 	$$ += $8;
@@ -82,6 +84,12 @@ function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEG
 	| FUNCTION error
 	{$$ = "";}
         ;
+endTrigger: END_BODY
+	{	
+	for(std::map<string,int>::iterator it = varTable.begin(); it != varTable.end(); it++){
+	it->second = it->second - 1;	
+	}
+	}
 declarationsWsemi: /*epsilon*/
 	{$$ = "";}
         | declaration SEMICOLON declarationsWsemi
@@ -93,14 +101,22 @@ declarationsWsemi: /*epsilon*/
 	| declaration error declarationsWsemi
         ;
 declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	{$$ = "declaration \n";}
+	{$$ = "'[]' " + $1 + ", " + to_string($5);}
 	| idents COLON INTEGER
         {$$ = ". " + $1 + "\n";}
 	;
 idents: IDENT COMMA idents
-	{$$ = $1 + $3;}
+	{$$ = $1 + $3;
+	if (!varTable.insert(make_pair($1,1)).second){
+	myerror("Variable already existed.");
+	}
+	}
 	| IDENT
-	{$$ = $1;}
+	{$$ = $1;
+	if (!varTable.insert(make_pair($1,1)).second){
+	myerror("Variable already existed.");
+	}
+	}
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi
 	{$$ = $1 + $3; } 
@@ -112,7 +128,7 @@ statementzWsemi: statement SEMICOLON statementzWsemi
 	{$$ = "";}
 	;
 statement: var ASSIGN expression
-        {$$ = "statement \n";}
+        {$$ = $3.code + "= " + $1.place + ", " + $3.place + "\n";}
 	| IF boolExpression THEN statementzWsemi ENDIF
 	{$$ = "statement \n";}  
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
@@ -169,6 +185,7 @@ comp: EQ
 	//{cout << "comp -> GTE \n";}
 	;
 expressionzWcomma:/*epsilon*/ 
+	
 	| expression
         |expression expressionCommaChain
 	;
@@ -176,43 +193,74 @@ expressionCommaChain: COMMA expression expressionCommaChain
 	| COMMA expression
 	;
 expression: multiplicativeExpression
-       // {cout << "expression -> multiplicativeExpression \n";}
+        {$$.code = $1.code; $$.place = $1.place;}
         | multiplicativeExpression ADD expression
-        //{cout << "expression -> multiplicativeExpression PLUS expression \n";}
+        {
+	$$.place = "temp_" + tempNum;
+	tempNum++;
+	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "+ " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+	 }
         | multiplicativeExpression SUB expression
-	//{cout << "expression -> mulitplicativeExpression MINUS expression \n";}
+	{
+	$$.place = "temp_" + tempNum;
+        tempNum++;                                                                                                              
+	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "- " + $$.place + ", " + $1.place + ", " + $3.place + "\n";     
+	}
 	;
 multiplicativeExpression: term
-        //{cout << "multiplicativeExpression -> term \n";}
+        {$$.place = $1.place; $$.code = "";}
         | term MOD multiplicativeExpression
-        //{cout << "multiplicativeExpression -> term MOD multiplicativeExpression \n";}
-        | term DIV multiplicativeExpression 
-        //{cout << "multiplicativeExpression -> term DIV multiplicativeExpression \n";}
-        | term MULT multiplicativeExpression 
-        //{cout << "multiplicativeExpression -> term MULT multiplicativeExpression \n";}
+        { $$.place = "temp_" + tempNum;
+        tempNum++;                                                                                                              
+	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "% " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+	}
+	| term DIV multiplicativeExpression 
+        { $$.place = "temp_" + tempNum;
+        tempNum++;                                                                                                              
+	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "/ " + $$.place + ", " + $1.place + ", " + $3.place + "\n";}
+	| term MULT multiplicativeExpression 
+	{ $$.place = "temp_" + tempNum;
+        tempNum++;
+	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "* " + $$.place + ", " + $1.place + ", " + $3.place + "\n";}
 	;
 term: var
-        //{cout << "term -> var \n";}
-        | SUB var %prec UMINUS
-        //{cout << "term -> SUB var \n";}
+	{ 
+	$$.place = $1.place; $$.code = $1.code;
+        }
+	| SUB var %prec UMINUS
+        {$$.place = $2.place; $$.code = $2.code + "- " + $2.place + ", 0, " + $2.place + "\n";}
         | NUMBER
-        //{cout << "term -> NUMBER \n";}
+        {$$.place = to_string($1); $$.code = "";}
         | SUB NUMBER %prec UMINUS 
-        //{cout << "term -> SUB NUMBER \n";}
+        {$$.place = "-" + to_string($2); $$.code = "";}
         | L_PAREN expression R_PAREN
-        //{cout << "term -> L_PAREN expression R_PAREN \n";}
+        {$$.code = $2.code + "= " + $$.place + ", " + $2.place + "\n"; $$.place = $2.place;}
         | SUB L_PAREN expression R_PAREN %prec UMINUS
-        //{cout << "term -> SUB L_PAREN expression R_PAREN \n";}
+        {
+	$$.code = $3.code;
+	$$.code += "= " + $$.place + ", " + $3.place + "\n"; 
+	$$.code += "- " + $$.place + ", 0, " + $$.place + "\n";
+	$$.place = $3.place;
+	}
         | IDENT L_PAREN expressionzWcomma R_PAREN
-	//{cout << "term -> IDENT L_PAREN (expression)? (COMMA expressions)? R_PAREN \n";}
+	{
+	$$.place = "temp_" + tempNum;//this is a function so this is wrong
+	tempNum++;
+	$$.code = $3.code 
+		+ ". " + $$.place 
+				+ "\n" + "call " + $1 + ", " + $$.place;//3.place makes no sence
+	}
 	;
 varzWcomma: var COMMA varzWcomma
 	| var
 	;
 var: IDENT
-	//{cout << "var -> IDENT %s \n";}
+	{$$.place = $1;}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
-	//{cout << "var -> IDENT %s L_SQUARE_BRACKET expression R_SQUARE_BRACKET \n";}
+	{
+	$$.place = "temp_" + tempNum;
+	tempNum++;
+	$$.code = ". " + $$.place + "\n" + "=[] " + $$.place + ", " + $1 + ", " + $3.place + "\n";}
 	;
 
 
@@ -221,22 +269,19 @@ var: IDENT
    int main(int argc, char *argv[])
 {
 	yy::parser p; 
-	
-        for(int count = 0; count < errorArrayCount; count++){
-                cout << (errorArray[count]);
-       }
    return p.parse();
 }
 
 void yy::parser::error(const yy::location& l, const std::string& m)
 {
-	//std::cout << l << ": " << m << std::endl;
 	  no_error = false;
-   if(errorArrayCount < 30){
-        errorArray[errorArrayCount] = 
-		"Error in column " + to_string(col_c) + " row" + to_string(row_c) + " : " + m + "\n";
-        errorArrayCount++;
+        cout << "Error in column " + to_string(col_c) + " row " + to_string(row_c) + " : " + m + "\n";
 }
+
+void myerror(string msg){
+	no_error = false;
+	cout << "Error in column " + to_string(col_c) + " row " + to_string(row_c) + " : " + msg + "\n";
+
 }
 
 

@@ -46,10 +46,12 @@
  #include <functional>
  #include <string>
 using namespace std;
-/*ENTER STRUCT here */
+struct exp_str{
+	string code;
+	string place;
+};
 
-
-#line 53 "parser.tab.h" // lalr1.cc:377
+#line 55 "parser.tab.h" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -126,7 +128,7 @@ using namespace std;
 
 
 namespace yy {
-#line 130 "parser.tab.h" // lalr1.cc:377
+#line 132 "parser.tab.h" // lalr1.cc:377
 
 
 
@@ -273,8 +275,15 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
+      // expressionzWcomma
+      // expression
+      // multiplicativeExpression
+      // term
+      // var
+      char dummy1[sizeof(exp_str)];
+
       // NUMBER
-      char dummy1[sizeof(int)];
+      char dummy2[sizeof(int)];
 
       // IDENT
       // program
@@ -284,7 +293,7 @@ namespace yy {
       // idents
       // statementzWsemi
       // statement
-      char dummy2[sizeof(string)];
+      char dummy3[sizeof(string)];
 };
 
     /// Symbol semantic values.
@@ -393,6 +402,8 @@ namespace yy {
       /// Constructor for valueless symbols, and symbols from each type.
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const exp_str v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
 
@@ -771,7 +782,7 @@ namespace yy {
     static const char* const yytname_[];
 #if YYDEBUG
   // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-  static const unsigned char yyrline_[];
+  static const unsigned short int yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r);
     /// Print the state stack on the debug stream.
@@ -871,7 +882,7 @@ namespace yy {
     {
       yyeof_ = 0,
       yylast_ = 165,     ///< Last index in yytable_.
-      yynnts_ = 20,  ///< Number of nonterminal symbols.
+      yynnts_ = 21,  ///< Number of nonterminal symbols.
       yyfinal_ = 7, ///< Termination state number.
       yyterror_ = 1,
       yyerrcode_ = 256,
@@ -955,6 +966,14 @@ namespace yy {
   {
       switch (other.type_get ())
     {
+      case 66: // expressionzWcomma
+      case 68: // expression
+      case 69: // multiplicativeExpression
+      case 70: // term
+      case 72: // var
+        value.copy< exp_str > (other.value);
+        break;
+
       case 42: // NUMBER
         value.copy< int > (other.value);
         break;
@@ -962,11 +981,11 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 56: // declarationsWsemi
-      case 57: // declaration
-      case 58: // idents
-      case 59: // statementzWsemi
-      case 60: // statement
+      case 57: // declarationsWsemi
+      case 58: // declaration
+      case 59: // idents
+      case 60: // statementzWsemi
+      case 61: // statement
         value.copy< string > (other.value);
         break;
 
@@ -987,6 +1006,14 @@ namespace yy {
     (void) v;
       switch (this->type_get ())
     {
+      case 66: // expressionzWcomma
+      case 68: // expression
+      case 69: // multiplicativeExpression
+      case 70: // term
+      case 72: // var
+        value.copy< exp_str > (v);
+        break;
+
       case 42: // NUMBER
         value.copy< int > (v);
         break;
@@ -994,11 +1021,11 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 56: // declarationsWsemi
-      case 57: // declaration
-      case 58: // idents
-      case 59: // statementzWsemi
-      case 60: // statement
+      case 57: // declarationsWsemi
+      case 58: // declaration
+      case 59: // idents
+      case 60: // statementzWsemi
+      case 61: // statement
         value.copy< string > (v);
         break;
 
@@ -1014,6 +1041,13 @@ namespace yy {
   parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const location_type& l)
     : Base (t)
     , value ()
+    , location (l)
+  {}
+
+  template <typename Base>
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const exp_str v, const location_type& l)
+    : Base (t)
+    , value (v)
     , location (l)
   {}
 
@@ -1057,6 +1091,14 @@ namespace yy {
     // Type destructor.
     switch (yytype)
     {
+      case 66: // expressionzWcomma
+      case 68: // expression
+      case 69: // multiplicativeExpression
+      case 70: // term
+      case 72: // var
+        value.template destroy< exp_str > ();
+        break;
+
       case 42: // NUMBER
         value.template destroy< int > ();
         break;
@@ -1064,11 +1106,11 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 56: // declarationsWsemi
-      case 57: // declaration
-      case 58: // idents
-      case 59: // statementzWsemi
-      case 60: // statement
+      case 57: // declarationsWsemi
+      case 58: // declaration
+      case 59: // idents
+      case 60: // statementzWsemi
+      case 61: // statement
         value.template destroy< string > ();
         break;
 
@@ -1095,6 +1137,14 @@ namespace yy {
     super_type::move(s);
       switch (this->type_get ())
     {
+      case 66: // expressionzWcomma
+      case 68: // expression
+      case 69: // multiplicativeExpression
+      case 70: // term
+      case 72: // var
+        value.move< exp_str > (s.value);
+        break;
+
       case 42: // NUMBER
         value.move< int > (s.value);
         break;
@@ -1102,11 +1152,11 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 56: // declarationsWsemi
-      case 57: // declaration
-      case 58: // idents
-      case 59: // statementzWsemi
-      case 60: // statement
+      case 57: // declarationsWsemi
+      case 58: // declaration
+      case 59: // idents
+      case 60: // statementzWsemi
+      case 61: // statement
         value.move< string > (s.value);
         break;
 
@@ -1478,7 +1528,7 @@ namespace yy {
 
 
 } // yy
-#line 1482 "parser.tab.h" // lalr1.cc:377
+#line 1532 "parser.tab.h" // lalr1.cc:377
 
 
 
