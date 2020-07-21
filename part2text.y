@@ -62,8 +62,8 @@ map <string,int> varTable;
 %right UMINUS
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
-%type <string> program function declaration statement declarationsWsemi statementzWsemi idents 
-%type<exp_str> expression multiplicativeExpression term var expressionzWcomma expressionCommaChain boolExpression
+%type <string> program function declaration declarationsWsemi statementzWsemi idents 
+%type<exp_str> expression multiplicativeExpression term var expressionzWcomma expressionCommaChain boolExpression statment
 
 %%
 
@@ -122,16 +122,16 @@ idents: IDENT COMMA idents
 	}
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi
-	{$$ = $1 + $3; } 
+	{$$ = $1.code + $3; } 
 	| statement SEMICOLON
-	{$$ = $1;}
+	{$$ = $1.code;}
 	| error SEMICOLON
 	{$$ = "";}
 	| statement error
 	{$$ = "";}
 	;
 statement: var ASSIGN expression
-        {$$ = $3.code + $1.code + "= " + $1.place + ", " + $3.place + "\n";}
+        {$$.code = $3.code + $1.code + "= " + $1.place + ", " + $3.place + "\n";}
 	| IF boolExpression THEN statementzWsemi ENDIF
 	{
 	$$.begin = "label" + to_string(labelNum);
@@ -140,8 +140,8 @@ statement: var ASSIGN expression
 	labelNum++;
 	$$.code = ": " + $$.begin + "\n";
 	$$.code += $2.code;
-	$$.code += "! " + $2.place + ", " + $2.place;
-	$$.code += "?:= " + $4.after + ", " + $2.place;
+	$$.code += "! " + $2.place + ", " + $2.place + "\n";
+	$$.code += "?:= " + $4.after + ", " + $2.place + "\n";
 	$$.code += $4.code;
 	$$.code = ": " + $$.after + "\n";
 	}  
@@ -153,16 +153,40 @@ statement: var ASSIGN expression
         labelNum++;
         $$.code = ": " + $$.begin + "\n";
         $$.code += $2.code;
-        $$.code += "! " + $2.place + ", " + $2.place;
-        $$.code += "?:= " + $5.begin + ", " + $2.place;
+        $$.code += "! " + $2.place + ", " + $2.place + "\n"; 
+        $$.code += "?:= " + $5.begin + ", " + $2.place + "\n";
         $$.code += $4.code;
 	$$.code += ":= " + $5.after;
         $$.code = ": " + $$.after + "\n";
 	}  
 	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
-	{$$ = "statement \n";}  
+	{$$.begin = "label" + to_string(labelNum);
+        labelNum++;
+        $$.after = "label" + to_string(labelNum);
+        labelNum++;
+	$$.code = ": " + $$.begin + "\n";
+	
+	$$.code += $2.code;
+        $$.code += "! " + $2.place + ", " + $2.place + "\n";
+        $$.code += "?:= " + $$.after + ", " + $2.place + "\n";
+	$$.code += $4.code;
+	$$.code += ":= " + $$.begin;
+	
+	$$.code += ": " + $$.after + "\n";
+	}  
         | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
-	{$$ = "statement \n";}  
+	{$$.begin = "label" + to_string(labelNum);
+        labelNum++;
+        $$.after = "label" + to_string(labelNum);
+        labelNum++;
+	$$.code = ": " + $$.begin + "\n";
+
+	$$.code += $3.code;
+	$$.code += $6.code;
+        $$.code += "?:= " + $$.begin + ", " + $2.place + "\n";	
+
+	$$.code += ": " + $$.after + "\n";
+	}  
         | READ varzWcomma
 	{$$ = "statement \n";}  
         | WRITE varzWcomma 
@@ -171,44 +195,66 @@ statement: var ASSIGN expression
 	{$$ = "statement \n";}  
         ;
 boolExpression: relationAndExpression
-        //{cout << "boolExpression -> relationAndExpression \n";}
+        {$$.code = $1.code; $$.place = $1.place;}
 	| relationAndExpression OR boolExpression
-	//{cout << "boolExpression -> relationAndExpression OR boolExpression \n";} 
+	{
+	$$.place = "temp_" + to_string(tempNum);
+        tempNum++;
+        $$.code = $1.code + $3.code + ". " + $$.place + "\n" + "|| " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+	} 
         ;
 relationAndExpression: relationExpression
-	//{cout << "relationAndExpression -> relationExpression \n";}
-        | relationExpression AND relationAndExpression 
-	//{cout << "relationAndExpression -> relationExpression AND relationExpression \n";}
-        ;
+        {$$.code = $1.code; $$.place = $1.place;}
+	| relationExpression AND relationAndExpression 
+        {            
+	$$.place = "temp_" + to_string(tempNum);
+        tempNum++;
+        $$.code = $1.code + $3.code + ". " + $$.place + "\n" + "&& " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+	}
+	;
 relationExpression: expression comp expression
-	//{cout << "relationExpression -> expression comp expression \n";}
-        |  NOT expression comp expression  
-	//{cout << "relationExpression -> NOT expression comp expression \n";}
-        |  TRUE
-	//{cout << "relationExpression -> TRUE \n";}
+        {                                                          
+	$$.place = "temp_" + to_string(tempNum);
+        tempNum++;
+        $$.code = $1.code + $3.code + ". " + $$.place + "\n" + $2 + " " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+        }
+	|  NOT expression comp expression  
+         {                                                                                    
+	$$.place = "temp_" + to_string(tempNum);
+        tempNum++;
+        $$.code = $2.code + "! " + $2.place + ", " + $2.place + "\n" + $4.code + ". " + $$.place + "\n" + $3 +" " + $$.place + ", " + $2.place + ", " + $4.place + "\n";
+	}
+	|  TRUE
+	{$$.code = ""; $$.place = "1";}
         |  NOT TRUE
-	//{cout << "relationExpression -> NOT TRUE \n";}
+	{$$.code = ""; $$.place = "0";}
         |  FALSE
-	//{cout << "relationExpression -> FALSE \n";}
+	{$$.code = ""; $$.place = "0";}
         |  NOT FALSE
-	//{cout << "relationExpression -> NOT FALSE \n";}
+	{$$.code = ""; $$.place = "1";}
         |  L_PAREN boolExpression R_PAREN
-	//{cout << "relationExpression -> L_PAREN boolExpression R_PAREN \n";}
+	{
+	$$.code = $2.code + "= " + $$.place + ", " + $2.place + "\n";
+	$$.place = $2.place;
+	}
         |  NOT L_PAREN boolExpression R_PAREN
-	//{cout << "relationExpression -> NOT L_PAREN boolExpression R_PAREN \n";} 
+	{
+	$$.code = $3.place + "! " + $3.place + ", " + $3.place + "\n" + "= " + $$.place + ", " + $3.place + "\n";
+        $$.place = $3.place;
+	} 
 	;
 comp: EQ
-        //{cout << "comp -> EQ \n";}
+        {$$ = "=="}
         | NEQ
-        //{cout << "comp -> NEQ \n";}
+        {$$ = "!="}
         | LT
-        //{cout << "comp -> LT \n";}
+        {$$ = "<"}
         | GT
-        //{cout << "comp -> GT \n";}
+        {$$ = ">";}
         | LTE
-        //{cout << "comp -> LTE \n";}
+        {$$ = "<=";}
         | GTE
-	//{cout << "comp -> GTE \n";}
+	{$$ = ">=";}
 	;
 expressionzWcomma:/*epsilon*/ 
 	{$$.code = "";}	
