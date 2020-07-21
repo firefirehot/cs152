@@ -276,6 +276,7 @@ namespace yy {
     union union_type
     {
       // expressionzWcomma
+      // expressionCommaChain
       // expression
       // multiplicativeExpression
       // term
@@ -967,6 +968,7 @@ namespace yy {
       switch (other.type_get ())
     {
       case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
@@ -1007,6 +1009,7 @@ namespace yy {
       switch (this->type_get ())
     {
       case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
@@ -1092,6 +1095,7 @@ namespace yy {
     switch (yytype)
     {
       case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
@@ -1138,6 +1142,7 @@ namespace yy {
       switch (this->type_get ())
     {
       case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
@@ -1528,7 +1533,7 @@ namespace yy {
 
 
 } // yy
-#line 1532 "parser.tab.h" // lalr1.cc:377
+#line 1537 "parser.tab.h" // lalr1.cc:377
 
 
 

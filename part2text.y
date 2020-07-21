@@ -19,6 +19,8 @@ using namespace std;
 struct exp_str{
 	string code;
 	string place;
+	string begin;
+	string after;
 };
 }
 
@@ -43,6 +45,7 @@ void yyerror(const char * msg);
 string errorArray[30];
 bool no_error = true;
 long tempNum = 0;
+long labelNum = 0;
 map <string,int> varTable;
 }
 
@@ -60,7 +63,7 @@ map <string,int> varTable;
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
 %type <string> program function declaration statement declarationsWsemi statementzWsemi idents 
-%type<exp_str> expression multiplicativeExpression term var expressionzWcomma
+%type<exp_str> expression multiplicativeExpression term var expressionzWcomma expressionCommaChain boolExpression
 
 %%
 
@@ -128,11 +131,34 @@ statementzWsemi: statement SEMICOLON statementzWsemi
 	{$$ = "";}
 	;
 statement: var ASSIGN expression
-        {$$ = $3.code + "= " + $1.place + ", " + $3.place + "\n";}
+        {$$ = $3.code + $1.code + "= " + $1.place + ", " + $3.place + "\n";}
 	| IF boolExpression THEN statementzWsemi ENDIF
-	{$$ = "statement \n";}  
+	{
+	$$.begin = "label" + to_string(labelNum);
+	labelNum++;
+	$$.after = "label" + to_string(labelNum);
+	labelNum++;
+	$$.code = ": " + $$.begin + "\n";
+	$$.code += $2.code;
+	$$.code += "! " + $2.place + ", " + $2.place;
+	$$.code += "?:= " + $4.after + ", " + $2.place;
+	$$.code += $4.code;
+	$$.code = ": " + $$.after + "\n";
+	}  
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
-	{$$ = "statement \n";}  
+	{
+	 $$.begin = "label" + to_string(labelNum);
+        labelNum++;
+        $$.after = "label" + to_string(labelNum);
+        labelNum++;
+        $$.code = ": " + $$.begin + "\n";
+        $$.code += $2.code;
+        $$.code += "! " + $2.place + ", " + $2.place;
+        $$.code += "?:= " + $5.begin + ", " + $2.place;
+        $$.code += $4.code;
+	$$.code += ":= " + $5.after;
+        $$.code = ": " + $$.after + "\n";
+	}  
 	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
 	{$$ = "statement \n";}  
         | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
@@ -185,24 +211,28 @@ comp: EQ
 	//{cout << "comp -> GTE \n";}
 	;
 expressionzWcomma:/*epsilon*/ 
-	
+	{$$.code = "";}	
 	| expression
+	{$$.code = $1.code;}
         |expression expressionCommaChain
+	{$$.code = $1.code + $2.code;}
 	;
 expressionCommaChain: COMMA expression expressionCommaChain
+	{$$.code = $2.code + $3.code;}
 	| COMMA expression
+	{$$.code = $2.code;}
 	;
 expression: multiplicativeExpression
         {$$.code = $1.code; $$.place = $1.place;}
         | multiplicativeExpression ADD expression
         {
-	$$.place = "temp_" + tempNum;
+	$$.place = "temp_" + to_string(tempNum);
 	tempNum++;
 	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "+ " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
 	 }
         | multiplicativeExpression SUB expression
 	{
-	$$.place = "temp_" + tempNum;
+	$$.place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "- " + $$.place + ", " + $1.place + ", " + $3.place + "\n";     
 	}
@@ -210,16 +240,16 @@ expression: multiplicativeExpression
 multiplicativeExpression: term
         {$$.place = $1.place; $$.code = "";}
         | term MOD multiplicativeExpression
-        { $$.place = "temp_" + tempNum;
+        { $$.place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "% " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
 	}
 	| term DIV multiplicativeExpression 
-        { $$.place = "temp_" + tempNum;
+        { $$.place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "/ " + $$.place + ", " + $1.place + ", " + $3.place + "\n";}
 	| term MULT multiplicativeExpression 
-	{ $$.place = "temp_" + tempNum;
+	{ $$.place = "temp_" + to_string(tempNum);
         tempNum++;
 	$$.code = $1.code + $3.code + ". " + $$.place + "\n" + "* " + $$.place + ", " + $1.place + ", " + $3.place + "\n";}
 	;
@@ -244,7 +274,7 @@ term: var
 	}
         | IDENT L_PAREN expressionzWcomma R_PAREN
 	{
-	$$.place = "temp_" + tempNum;//this is a function so this is wrong
+	$$.place = "temp_" + to_string(tempNum);//this is a function so this is wrong
 	tempNum++;
 	$$.code = $3.code 
 		+ ". " + $$.place 
@@ -258,7 +288,7 @@ var: IDENT
 	{$$.place = $1;}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 	{
-	$$.place = "temp_" + tempNum;
+	$$.place = "temp_" + to_string(tempNum);
 	tempNum++;
 	$$.code = ". " + $$.place + "\n" + "=[] " + $$.place + ", " + $1 + ", " + $3.place + "\n";}
 	;
