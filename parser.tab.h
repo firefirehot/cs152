@@ -49,9 +49,21 @@ using namespace std;
 struct exp_str{
 	string code;
 	string place;
+	string begin;
+	string after;
+};
+struct dec_str{
+	string code;
+	string id;
+	list<string> l;
+	};
+struct varz_str{
+	exp_str base;
+	list<string> addOn;
+	list<string> id;
 };
 
-#line 55 "parser.tab.h" // lalr1.cc:377
+#line 67 "parser.tab.h" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -128,7 +140,7 @@ struct exp_str{
 
 
 namespace yy {
-#line 132 "parser.tab.h" // lalr1.cc:377
+#line 144 "parser.tab.h" // lalr1.cc:377
 
 
 
@@ -275,26 +287,35 @@ namespace yy {
     /// An auxiliary type to compute the largest semantic type.
     union union_type
     {
-      // expressionzWcomma
-      // expressionCommaChain
+      // declarationsWsemi
+      // declaration
+      char dummy1[sizeof(dec_str)];
+
+      // statementzWsemi
+      // statement
+      // boolExpression
+      // relationAndExpression
+      // relationExpression
       // expression
       // multiplicativeExpression
       // term
-      // var
-      char dummy1[sizeof(exp_str)];
+      char dummy2[sizeof(exp_str)];
 
       // NUMBER
-      char dummy2[sizeof(int)];
+      char dummy3[sizeof(int)];
 
       // IDENT
       // program
       // function
-      // declarationsWsemi
-      // declaration
       // idents
-      // statementzWsemi
-      // statement
-      char dummy3[sizeof(string)];
+      // comp
+      char dummy4[sizeof(string)];
+
+      // expressionzWcomma
+      // expressionCommaChain
+      // varzWcomma
+      // var
+      char dummy5[sizeof(varz_str)];
 };
 
     /// Symbol semantic values.
@@ -404,11 +425,15 @@ namespace yy {
 
   basic_symbol (typename Base::kind_type t, const location_type& l);
 
+  basic_symbol (typename Base::kind_type t, const dec_str v, const location_type& l);
+
   basic_symbol (typename Base::kind_type t, const exp_str v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const int v, const location_type& l);
 
   basic_symbol (typename Base::kind_type t, const string v, const location_type& l);
+
+  basic_symbol (typename Base::kind_type t, const varz_str v, const location_type& l);
 
 
       /// Constructor for symbols with semantic value.
@@ -967,12 +992,19 @@ namespace yy {
   {
       switch (other.type_get ())
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.copy< dec_str > (other.value);
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.copy< exp_str > (other.value);
         break;
 
@@ -983,12 +1015,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.copy< string > (other.value);
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.copy< varz_str > (other.value);
         break;
 
       default:
@@ -1008,12 +1044,19 @@ namespace yy {
     (void) v;
       switch (this->type_get ())
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.copy< dec_str > (v);
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.copy< exp_str > (v);
         break;
 
@@ -1024,12 +1067,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.copy< string > (v);
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.copy< varz_str > (v);
         break;
 
       default:
@@ -1044,6 +1091,13 @@ namespace yy {
   parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const location_type& l)
     : Base (t)
     , value ()
+    , location (l)
+  {}
+
+  template <typename Base>
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const dec_str v, const location_type& l)
+    : Base (t)
+    , value (v)
     , location (l)
   {}
 
@@ -1063,6 +1117,13 @@ namespace yy {
 
   template <typename Base>
   parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const string v, const location_type& l)
+    : Base (t)
+    , value (v)
+    , location (l)
+  {}
+
+  template <typename Base>
+  parser::basic_symbol<Base>::basic_symbol (typename Base::kind_type t, const varz_str v, const location_type& l)
     : Base (t)
     , value (v)
     , location (l)
@@ -1094,12 +1155,19 @@ namespace yy {
     // Type destructor.
     switch (yytype)
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.template destroy< dec_str > ();
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.template destroy< exp_str > ();
         break;
 
@@ -1110,12 +1178,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.template destroy< string > ();
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.template destroy< varz_str > ();
         break;
 
       default:
@@ -1141,12 +1213,19 @@ namespace yy {
     super_type::move(s);
       switch (this->type_get ())
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.move< dec_str > (s.value);
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.move< exp_str > (s.value);
         break;
 
@@ -1157,12 +1236,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.move< string > (s.value);
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.move< varz_str > (s.value);
         break;
 
       default:
@@ -1533,7 +1616,7 @@ namespace yy {
 
 
 } // yy
-#line 1537 "parser.tab.h" // lalr1.cc:377
+#line 1620 "parser.tab.h" // lalr1.cc:377
 
 
 

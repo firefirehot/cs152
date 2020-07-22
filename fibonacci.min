@@ -6,7 +6,6 @@ beginlocals
 endlocals
 beginbody
 	if (k <= 1) then return 1; endif;
-	k := k + 1; k := k - 1; k := k * 1; k := k - 1 * k;
 	return fibonacci(k - 1) + fibonacci(k - 2);
 endbody
 

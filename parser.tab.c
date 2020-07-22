@@ -51,7 +51,7 @@
 
 #line 53 "parser.tab.c" // lalr1.cc:412
 // Unqualified %code blocks.
-#line 26 "part2text.y" // lalr1.cc:413
+#line 38 "part2text.y" // lalr1.cc:413
 
 
 #include "parser.tab.h"
@@ -72,9 +72,11 @@ void yyerror(const char * msg);
 string errorArray[30];
 bool no_error = true;
 long tempNum = 0;
+long labelNum = 0;
+long paramNum = 0;
 map <string,int> varTable;
 
-#line 78 "parser.tab.c" // lalr1.cc:413
+#line 80 "parser.tab.c" // lalr1.cc:413
 
 
 #ifndef YY_
@@ -160,7 +162,7 @@ map <string,int> varTable;
 
 
 namespace yy {
-#line 164 "parser.tab.c" // lalr1.cc:479
+#line 166 "parser.tab.c" // lalr1.cc:479
 
   /* Return YYSTR after stripping away unnecessary quotes and
      backslashes, so that it's suitable for yyerror.  The heuristic is
@@ -270,12 +272,19 @@ namespace yy {
   {
       switch (that.type_get ())
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.move< dec_str > (that.value);
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.move< exp_str > (that.value);
         break;
 
@@ -286,12 +295,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.move< string > (that.value);
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.move< varz_str > (that.value);
         break;
 
       default:
@@ -309,12 +322,19 @@ namespace yy {
     state = that.state;
       switch (that.type_get ())
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        value.copy< dec_str > (that.value);
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         value.copy< exp_str > (that.value);
         break;
 
@@ -325,12 +345,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         value.copy< string > (that.value);
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        value.copy< varz_str > (that.value);
         break;
 
       default:
@@ -561,12 +585,19 @@ namespace yy {
          when using variants.  */
         switch (yyr1_[yyn])
     {
-      case 66: // expressionzWcomma
-      case 67: // expressionCommaChain
+      case 57: // declarationsWsemi
+      case 58: // declaration
+        yylhs.value.build< dec_str > ();
+        break;
+
+      case 60: // statementzWsemi
+      case 61: // statement
+      case 62: // boolExpression
+      case 63: // relationAndExpression
+      case 64: // relationExpression
       case 68: // expression
       case 69: // multiplicativeExpression
       case 70: // term
-      case 72: // var
         yylhs.value.build< exp_str > ();
         break;
 
@@ -577,12 +608,16 @@ namespace yy {
       case 41: // IDENT
       case 54: // program
       case 55: // function
-      case 57: // declarationsWsemi
-      case 58: // declaration
       case 59: // idents
-      case 60: // statementzWsemi
-      case 61: // statement
+      case 65: // comp
         yylhs.value.build< string > ();
+        break;
+
+      case 66: // expressionzWcomma
+      case 67: // expressionCommaChain
+      case 71: // varzWcomma
+      case 72: // var
+        yylhs.value.build< varz_str > ();
         break;
 
       default:
@@ -603,333 +638,602 @@ namespace yy {
           switch (yyn)
             {
   case 2:
-#line 69 "part2text.y" // lalr1.cc:859
+#line 84 "part2text.y" // lalr1.cc:859
     {if(no_error) cout << yystack_[0].value.as< string > () << endl;}
-#line 609 "parser.tab.c" // lalr1.cc:859
+#line 644 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 3:
-#line 73 "part2text.y" // lalr1.cc:859
+#line 88 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = "";}
-#line 615 "parser.tab.c" // lalr1.cc:859
+#line 650 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 4:
-#line 75 "part2text.y" // lalr1.cc:859
+#line 90 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = yystack_[1].value.as< string > () + "\n" + yystack_[0].value.as< string > ();}
-#line 621 "parser.tab.c" // lalr1.cc:859
+#line 656 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 5:
-#line 78 "part2text.y" // lalr1.cc:859
+#line 93 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = "func " + yystack_[10].value.as< string > () + "\n";
-	yylhs.value.as< string > () += yystack_[7].value.as< string > ();
-	yylhs.value.as< string > () += yystack_[4].value.as< string > ();
-	yylhs.value.as< string > () += yystack_[1].value.as< string > ();
+	yylhs.value.as< string > () += yystack_[7].value.as< dec_str > ().code;
+	for (list<string>::iterator it = yystack_[7].value.as< dec_str > ().l.begin(); it != yystack_[7].value.as< dec_str > ().l.end(); it++){
+	yylhs.value.as< string > () += "= " + *it + ", " + "$" + to_string(paramNum) + "\n";
+	paramNum++;
+	} 
+	yylhs.value.as< string > () += yystack_[4].value.as< dec_str > ().code;
+	yylhs.value.as< string > () += yystack_[1].value.as< exp_str > ().code;
 	yylhs.value.as< string > () += "endfunc \n";
 	}
-#line 632 "parser.tab.c" // lalr1.cc:859
+#line 671 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 6:
-#line 85 "part2text.y" // lalr1.cc:859
+#line 104 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = "";}
-#line 638 "parser.tab.c" // lalr1.cc:859
+#line 677 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 7:
-#line 88 "part2text.y" // lalr1.cc:859
+#line 107 "part2text.y" // lalr1.cc:859
     {	
 	for(std::map<string,int>::iterator it = varTable.begin(); it != varTable.end(); it++){
 	it->second = it->second - 1;	
 	}
 	}
-#line 648 "parser.tab.c" // lalr1.cc:859
+#line 687 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 8:
-#line 94 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "";}
-#line 654 "parser.tab.c" // lalr1.cc:859
+#line 113 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< dec_str > ().code = "";yylhs.value.as< dec_str > ().l = list<string>();}
+#line 693 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 9:
-#line 96 "part2text.y" // lalr1.cc:859
+#line 115 "part2text.y" // lalr1.cc:859
     {
-	yylhs.value.as< string > () = yystack_[2].value.as< string > () + yystack_[0].value.as< string > ();
+	yylhs.value.as< dec_str > ().code = yystack_[2].value.as< dec_str > ().code + yystack_[0].value.as< dec_str > ().code;
+	yylhs.value.as< dec_str > ().l = yystack_[2].value.as< dec_str > ().l;
+	for(list<string>::iterator it = yystack_[0].value.as< dec_str > ().l.begin(); it != yystack_[0].value.as< dec_str > ().l.end(); it++){
+	yylhs.value.as< dec_str > ().l.push_back(*it);
 	}
-#line 662 "parser.tab.c" // lalr1.cc:859
+	}
+#line 705 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 10:
-#line 100 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "";}
-#line 668 "parser.tab.c" // lalr1.cc:859
+#line 123 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< dec_str > ().code = "";}
+#line 711 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 12:
-#line 104 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "'[]' " + yystack_[7].value.as< string > () + ", " + to_string(yystack_[3].value.as< int > ());}
-#line 674 "parser.tab.c" // lalr1.cc:859
+#line 127 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< dec_str > ().code = "'[]' " + yystack_[7].value.as< string > () + ", " + to_string(yystack_[3].value.as< int > ());}
+#line 717 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 13:
-#line 106 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = ". " + yystack_[2].value.as< string > () + "\n";}
-#line 680 "parser.tab.c" // lalr1.cc:859
+#line 129 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< dec_str > ().code = ". " + yystack_[2].value.as< string > () + "\n";
+	yylhs.value.as< dec_str > ().l.push_back(yystack_[2].value.as< string > ());
+	}
+#line 726 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 14:
-#line 109 "part2text.y" // lalr1.cc:859
+#line 135 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = yystack_[2].value.as< string > () + yystack_[0].value.as< string > ();
 	if (!varTable.insert(make_pair(yystack_[2].value.as< string > (),1)).second){
 	myerror("Variable already existed.");
 	}
 	}
-#line 690 "parser.tab.c" // lalr1.cc:859
+#line 736 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 15:
-#line 115 "part2text.y" // lalr1.cc:859
+#line 141 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< string > () = yystack_[0].value.as< string > ();
 	if (!varTable.insert(make_pair(yystack_[0].value.as< string > (),1)).second){
 	myerror("Variable already existed.");
 	}
 	}
-#line 700 "parser.tab.c" // lalr1.cc:859
+#line 746 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 16:
-#line 122 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = yystack_[2].value.as< string > () + yystack_[0].value.as< string > (); }
-#line 706 "parser.tab.c" // lalr1.cc:859
+#line 148 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code; }
+#line 753 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 17:
-#line 124 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = yystack_[1].value.as< string > ();}
-#line 712 "parser.tab.c" // lalr1.cc:859
+#line 151 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code;}
+#line 759 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 18:
-#line 126 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "";}
-#line 718 "parser.tab.c" // lalr1.cc:859
+#line 153 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = "";}
+#line 765 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 19:
-#line 128 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "";}
-#line 724 "parser.tab.c" // lalr1.cc:859
+#line 155 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = "";}
+#line 771 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 20:
-#line 131 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = yystack_[0].value.as< exp_str > ().code + yystack_[2].value.as< exp_str > ().code + "= " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";}
-#line 730 "parser.tab.c" // lalr1.cc:859
+#line 158 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code + yystack_[2].value.as< varz_str > ().base.code + "= " + yystack_[2].value.as< varz_str > ().base.place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";}
+#line 777 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 21:
-#line 133 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 736 "parser.tab.c" // lalr1.cc:859
+#line 160 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().begin = "label_" + to_string(labelNum);
+	labelNum++;
+	yylhs.value.as< exp_str > ().after = "label_" + to_string(labelNum);
+	labelNum++;
+	yylhs.value.as< exp_str > ().code = ": " + yylhs.value.as< exp_str > ().begin + "\n";
+	yylhs.value.as< exp_str > ().code += yystack_[3].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().code += "! " + yystack_[3].value.as< exp_str > ().place + ", " + yystack_[3].value.as< exp_str > ().place + "\n";
+	yylhs.value.as< exp_str > ().code += "?:= " + yylhs.value.as< exp_str > ().after + ", " + yystack_[3].value.as< exp_str > ().place + "\n";
+	yylhs.value.as< exp_str > ().code += yystack_[1].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().code += ": " + yylhs.value.as< exp_str > ().after + "\n";
+	}
+#line 794 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 22:
-#line 135 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 742 "parser.tab.c" // lalr1.cc:859
+#line 173 "part2text.y" // lalr1.cc:859
+    {
+	 yylhs.value.as< exp_str > ().begin = "label_" + to_string(labelNum);
+        labelNum++;
+        yylhs.value.as< exp_str > ().after = "label_" + to_string(labelNum);
+        labelNum++;
+	string tempexp = "label_" + to_string(labelNum);
+	labelNum++;
+        yylhs.value.as< exp_str > ().code = ": " + yylhs.value.as< exp_str > ().begin + "\n";
+        yylhs.value.as< exp_str > ().code += yystack_[5].value.as< exp_str > ().code;
+        yylhs.value.as< exp_str > ().code += "! " + yystack_[5].value.as< exp_str > ().place + ", " + yystack_[5].value.as< exp_str > ().place + "\n"; 
+        yylhs.value.as< exp_str > ().code += "?:= " + yystack_[1].value.as< exp_str > ().begin + ", " + yystack_[5].value.as< exp_str > ().place + "\n";
+        yylhs.value.as< exp_str > ().code += yystack_[3].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().code += ":= " + yylhs.value.as< exp_str > ().after + "\n";
+	yylhs.value.as< exp_str > ().code += ": " + tempexp + "\n";
+	yylhs.value.as< exp_str > ().code += yystack_[1].value.as< exp_str > ().code;
+        yylhs.value.as< exp_str > ().code += ": " + yylhs.value.as< exp_str > ().after + "\n";
+	}
+#line 816 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 23:
-#line 137 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 748 "parser.tab.c" // lalr1.cc:859
+#line 191 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().begin = "label_" + to_string(labelNum);
+        labelNum++;
+        yylhs.value.as< exp_str > ().after = "label_" + to_string(labelNum);
+        labelNum++;
+	yylhs.value.as< exp_str > ().code = ": " + yylhs.value.as< exp_str > ().begin + "\n";
+	
+	yylhs.value.as< exp_str > ().code += yystack_[3].value.as< exp_str > ().code;
+        yylhs.value.as< exp_str > ().code += "! " + yystack_[3].value.as< exp_str > ().place + ", " + yystack_[3].value.as< exp_str > ().place + "\n";
+        yylhs.value.as< exp_str > ().code += "?:= " + yylhs.value.as< exp_str > ().after + ", " + yystack_[3].value.as< exp_str > ().place + "\n";
+	yylhs.value.as< exp_str > ().code += yystack_[1].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().code += ":= " + yylhs.value.as< exp_str > ().begin + "\n";
+	
+	yylhs.value.as< exp_str > ().code += ": " + yylhs.value.as< exp_str > ().after + "\n";
+	}
+#line 835 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 24:
-#line 139 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 754 "parser.tab.c" // lalr1.cc:859
+#line 206 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().begin = "label_" + to_string(labelNum);
+        labelNum++;
+        yylhs.value.as< exp_str > ().after = "label_" + to_string(labelNum);
+        labelNum++;
+	yylhs.value.as< exp_str > ().code = ": " + yylhs.value.as< exp_str > ().begin + "\n";
+
+	yylhs.value.as< exp_str > ().code += yystack_[3].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().code += yystack_[0].value.as< exp_str > ().code;
+        yylhs.value.as< exp_str > ().code += "?:= " + yylhs.value.as< exp_str > ().begin + ", " + yystack_[0].value.as< exp_str > ().place + "\n";	
+
+	yylhs.value.as< exp_str > ().code += ": " + yylhs.value.as< exp_str > ().after + "\n";
+	}
+#line 852 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 25:
-#line 141 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 760 "parser.tab.c" // lalr1.cc:859
+#line 219 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().code = "";
+	list<string>::iterator ids = yystack_[0].value.as< varz_str > ().id.begin();
+	for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().addOn.begin(); it != yystack_[0].value.as< varz_str > ().addOn.end(); it++)
+	{
+		if(*ids == "__")
+		{
+			yylhs.value.as< exp_str > ().code += ".< " + *it + "\n";
+		}else
+		{
+			yylhs.value.as< exp_str > ().code += ".[]< " + *it + ", " + *ids + "\n";
+		}
+		ids++;
+	}
+	
+	}
+#line 873 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 26:
-#line 143 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 766 "parser.tab.c" // lalr1.cc:859
+#line 236 "part2text.y" // lalr1.cc:859
+    {
+	
+	 yylhs.value.as< exp_str > ().code = "";
+	 list<string>::iterator ids = yystack_[0].value.as< varz_str > ().id.begin();
+	 for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().addOn.begin(); it != yystack_[0].value.as< varz_str > ().addOn.end(); it++)
+         {
+		if(*ids == "__")
+		{
+                        yylhs.value.as< exp_str > ().code += ".> " + *it + "\n";
+                }else
+                {
+                        yylhs.value.as< exp_str > ().code += ".[]> " + *it + ", " + *ids + "\n";
+                }
+                ids++;
+        }
+	
+	
+	}
+#line 896 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 27:
-#line 145 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< string > () = "statement \n";}
-#line 772 "parser.tab.c" // lalr1.cc:859
+#line 255 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code + "ret " + yystack_[0].value.as< exp_str > ().place + "\n";}
+#line 902 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 28:
+#line 258 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code; yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place;}
+#line 909 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 29:
+#line 261 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
+        tempNum++;
+        yylhs.value.as< exp_str > ().code =  yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "|| " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
+	}
+#line 919 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 30:
+#line 268 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code; yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place;}
+#line 925 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 31:
+#line 270 "part2text.y" // lalr1.cc:859
+    {            
+	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
+        tempNum++;
+        yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "&& " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
+	}
+#line 935 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 32:
+#line 277 "part2text.y" // lalr1.cc:859
+    {                                                          
+	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
+        tempNum++;
+        yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + yystack_[1].value.as< string > () + " " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
+        }
+#line 945 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 33:
+#line 283 "part2text.y" // lalr1.cc:859
+    {                                                                                    
+	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
+        tempNum++;
+        yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + "! " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + "\n" + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + yystack_[1].value.as< string > () +" " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
+	}
+#line 955 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 34:
+#line 289 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = ""; yylhs.value.as< exp_str > ().place = "1";}
+#line 961 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 35:
+#line 291 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = ""; yylhs.value.as< exp_str > ().place = "0";}
+#line 967 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 36:
+#line 293 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = ""; yylhs.value.as< exp_str > ().place = "0";}
+#line 973 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 37:
+#line 295 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().code = ""; yylhs.value.as< exp_str > ().place = "1";}
+#line 979 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 38:
+#line 297 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code /*+ "= " + $$.place + ", " + $2.place + "\n"*/;
+	yylhs.value.as< exp_str > ().place = yystack_[1].value.as< exp_str > ().place;
+	}
+#line 988 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 39:
+#line 302 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().place + "! " + yystack_[1].value.as< exp_str > ().place + ", " + yystack_[1].value.as< exp_str > ().place + "\n" /*+ "= " + $$.place + ", " + $3.place + "\n"*/;
+        yylhs.value.as< exp_str > ().place = yystack_[1].value.as< exp_str > ().place;
+	}
+#line 997 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 40:
+#line 308 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = "==";}
+#line 1003 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 41:
+#line 310 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = "!=";}
+#line 1009 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 42:
+#line 312 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = "<";}
+#line 1015 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 43:
+#line 314 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = ">";}
+#line 1021 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 44:
+#line 316 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = "<=";}
+#line 1027 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 45:
+#line 318 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< string > () = ">=";}
+#line 1033 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 46:
-#line 188 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().code = "";}
-#line 778 "parser.tab.c" // lalr1.cc:859
+#line 321 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< varz_str > ().base.code = ""; yylhs.value.as< varz_str > ().addOn = list<string>();}
+#line 1039 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 47:
-#line 190 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code;}
-#line 784 "parser.tab.c" // lalr1.cc:859
+#line 323 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< varz_str > ().base.code = yystack_[0].value.as< exp_str > ().code;yylhs.value.as< varz_str > ().addOn.push_back(yystack_[0].value.as< exp_str > ().place);}
+#line 1045 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 48:
-#line 192 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code;}
-#line 790 "parser.tab.c" // lalr1.cc:859
+#line 325 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< varz_str > ().base.code = yystack_[1].value.as< exp_str > ().code + yystack_[0].value.as< varz_str > ().base.code;
+	yylhs.value.as< varz_str > ().addOn.push_back(yystack_[1].value.as< exp_str > ().place);
+	for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().addOn.begin(); it != yystack_[0].value.as< varz_str > ().addOn.end(); it++){
+	yylhs.value.as< varz_str > ().addOn.push_back(*it);
+	}
+	}
+#line 1057 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 49:
-#line 195 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code;}
-#line 796 "parser.tab.c" // lalr1.cc:859
+#line 334 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< varz_str > ().base.code = yystack_[1].value.as< exp_str > ().code + yystack_[0].value.as< varz_str > ().base.code;
+	yylhs.value.as< varz_str > ().addOn.push_back(yystack_[1].value.as< exp_str > ().place);
+	for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().addOn.begin(); it != yystack_[0].value.as< varz_str > ().addOn.end(); it++){
+	yylhs.value.as< varz_str > ().addOn.push_back(*it);  
+	}
+	}
+#line 1069 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 50:
-#line 197 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code;}
-#line 802 "parser.tab.c" // lalr1.cc:859
+#line 342 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< varz_str > ().addOn.push_back(yystack_[0].value.as< exp_str > ().place);
+	yylhs.value.as< varz_str > ().base.code = yystack_[0].value.as< exp_str > ().code;
+	
+	}
+#line 1079 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 51:
-#line 200 "part2text.y" // lalr1.cc:859
+#line 349 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code; yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place;}
-#line 808 "parser.tab.c" // lalr1.cc:859
+#line 1085 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 52:
-#line 202 "part2text.y" // lalr1.cc:859
+#line 351 "part2text.y" // lalr1.cc:859
     {
 	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
 	tempNum++;
 	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "+ " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
 	 }
-#line 818 "parser.tab.c" // lalr1.cc:859
+#line 1095 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 53:
-#line 208 "part2text.y" // lalr1.cc:859
+#line 357 "part2text.y" // lalr1.cc:859
     {
 	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "- " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";     
 	}
-#line 828 "parser.tab.c" // lalr1.cc:859
+#line 1105 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 54:
-#line 215 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place; yylhs.value.as< exp_str > ().code = "";}
-#line 834 "parser.tab.c" // lalr1.cc:859
+#line 364 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place; yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code;}
+#line 1111 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 55:
-#line 217 "part2text.y" // lalr1.cc:859
+#line 366 "part2text.y" // lalr1.cc:859
     { yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "% " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";
 	}
-#line 843 "parser.tab.c" // lalr1.cc:859
+#line 1120 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 56:
-#line 222 "part2text.y" // lalr1.cc:859
+#line 371 "part2text.y" // lalr1.cc:859
     { yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
 	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "/ " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";}
-#line 851 "parser.tab.c" // lalr1.cc:859
+#line 1128 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 57:
-#line 226 "part2text.y" // lalr1.cc:859
+#line 375 "part2text.y" // lalr1.cc:859
     { yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
         tempNum++;
 	yylhs.value.as< exp_str > ().code = yystack_[2].value.as< exp_str > ().code + yystack_[0].value.as< exp_str > ().code + ". " + yylhs.value.as< exp_str > ().place + "\n" + "* " + yylhs.value.as< exp_str > ().place + ", " + yystack_[2].value.as< exp_str > ().place + ", " + yystack_[0].value.as< exp_str > ().place + "\n";}
-#line 859 "parser.tab.c" // lalr1.cc:859
+#line 1136 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 58:
-#line 231 "part2text.y" // lalr1.cc:859
+#line 380 "part2text.y" // lalr1.cc:859
     { 
-	yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place; yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code;
+	yylhs.value.as< exp_str > ().place = yystack_[0].value.as< varz_str > ().base.place; yylhs.value.as< exp_str > ().code = yystack_[0].value.as< varz_str > ().base.code;
         }
-#line 867 "parser.tab.c" // lalr1.cc:859
+#line 1144 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 59:
-#line 235 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().place = yystack_[0].value.as< exp_str > ().place; yylhs.value.as< exp_str > ().code = yystack_[0].value.as< exp_str > ().code + "- " + yystack_[0].value.as< exp_str > ().place + ", 0, " + yystack_[0].value.as< exp_str > ().place + "\n";}
-#line 873 "parser.tab.c" // lalr1.cc:859
+#line 384 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< exp_str > ().place = yystack_[0].value.as< varz_str > ().base.place; yylhs.value.as< exp_str > ().code = yystack_[0].value.as< varz_str > ().base.code + "- " + yystack_[0].value.as< varz_str > ().base.place + ", 0, " + yystack_[0].value.as< varz_str > ().base.place + "\n";}
+#line 1150 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 60:
-#line 237 "part2text.y" // lalr1.cc:859
+#line 386 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< exp_str > ().place = to_string(yystack_[0].value.as< int > ()); yylhs.value.as< exp_str > ().code = "";}
-#line 879 "parser.tab.c" // lalr1.cc:859
+#line 1156 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 61:
-#line 239 "part2text.y" // lalr1.cc:859
+#line 388 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< exp_str > ().place = "-" + to_string(yystack_[0].value.as< int > ()); yylhs.value.as< exp_str > ().code = "";}
-#line 885 "parser.tab.c" // lalr1.cc:859
+#line 1162 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 62:
-#line 241 "part2text.y" // lalr1.cc:859
+#line 390 "part2text.y" // lalr1.cc:859
     {yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code + "= " + yylhs.value.as< exp_str > ().place + ", " + yystack_[1].value.as< exp_str > ().place + "\n"; yylhs.value.as< exp_str > ().place = yystack_[1].value.as< exp_str > ().place;}
-#line 891 "parser.tab.c" // lalr1.cc:859
+#line 1168 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 63:
-#line 243 "part2text.y" // lalr1.cc:859
+#line 392 "part2text.y" // lalr1.cc:859
     {
 	yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code;
 	yylhs.value.as< exp_str > ().code += "= " + yylhs.value.as< exp_str > ().place + ", " + yystack_[1].value.as< exp_str > ().place + "\n"; 
 	yylhs.value.as< exp_str > ().code += "- " + yylhs.value.as< exp_str > ().place + ", 0, " + yylhs.value.as< exp_str > ().place + "\n";
 	yylhs.value.as< exp_str > ().place = yystack_[1].value.as< exp_str > ().place;
 	}
-#line 902 "parser.tab.c" // lalr1.cc:859
+#line 1179 "parser.tab.c" // lalr1.cc:859
     break;
 
   case 64:
-#line 250 "part2text.y" // lalr1.cc:859
-    {
-	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);//this is a function so this is wrong
-	tempNum++;
-	yylhs.value.as< exp_str > ().code = yystack_[1].value.as< exp_str > ().code 
-		+ ". " + yylhs.value.as< exp_str > ().place 
-				+ "\n" + "call " + yystack_[3].value.as< string > () + ", " + yylhs.value.as< exp_str > ().place;//3.place makes no sence
-	}
-#line 914 "parser.tab.c" // lalr1.cc:859
-    break;
-
-  case 67:
-#line 262 "part2text.y" // lalr1.cc:859
-    {yylhs.value.as< exp_str > ().place = yystack_[0].value.as< string > ();}
-#line 920 "parser.tab.c" // lalr1.cc:859
-    break;
-
-  case 68:
-#line 264 "part2text.y" // lalr1.cc:859
+#line 399 "part2text.y" // lalr1.cc:859
     {
 	yylhs.value.as< exp_str > ().place = "temp_" + to_string(tempNum);
 	tempNum++;
-	yylhs.value.as< exp_str > ().code = ". " + yylhs.value.as< exp_str > ().place + "\n" + "=[] " + yylhs.value.as< exp_str > ().place + ", " + yystack_[3].value.as< string > () + ", " + yystack_[1].value.as< exp_str > ().place + "\n";}
-#line 929 "parser.tab.c" // lalr1.cc:859
+	yylhs.value.as< exp_str > ().code = yystack_[1].value.as< varz_str > ().base.code;
+	for(list<string>::iterator it = yystack_[1].value.as< varz_str > ().addOn.begin(); it != yystack_[1].value.as< varz_str > ().addOn.end();it++){
+	yylhs.value.as< exp_str > ().code += "param " + *it + "\n";
+	}  
+	yylhs.value.as< exp_str > ().code	+= ". " + yylhs.value.as< exp_str > ().place + "\n" + "call " + yystack_[3].value.as< string > () + ", " + yylhs.value.as< exp_str > ().place + "\n";
+	}
+#line 1193 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 65:
+#line 410 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< varz_str > ().addOn = yystack_[2].value.as< varz_str > ().addOn;
+	yylhs.value.as< varz_str > ().id = yystack_[2].value.as< varz_str > ().id;
+	for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().id.begin(); it != yystack_[0].value.as< varz_str > ().id.end(); it++){
+        yylhs.value.as< varz_str > ().id.push_back(*it);
+        }
+	for(list<string>::iterator it = yystack_[0].value.as< varz_str > ().addOn.begin(); it != yystack_[0].value.as< varz_str > ().addOn.end(); it++){ 
+	yylhs.value.as< varz_str > ().addOn.push_back(*it);
+	}
+	
+	}
+#line 1209 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 66:
+#line 422 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< varz_str > ().addOn = yystack_[0].value.as< varz_str > ().addOn; yylhs.value.as< varz_str > ().id = yystack_[0].value.as< varz_str > ().id;}
+#line 1215 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 67:
+#line 425 "part2text.y" // lalr1.cc:859
+    {yylhs.value.as< varz_str > ().base.place = yystack_[0].value.as< string > ();yylhs.value.as< varz_str > ().addOn.push_back(yystack_[0].value.as< string > ());yylhs.value.as< varz_str > ().id.push_back("__");}
+#line 1221 "parser.tab.c" // lalr1.cc:859
+    break;
+
+  case 68:
+#line 427 "part2text.y" // lalr1.cc:859
+    {
+	yylhs.value.as< varz_str > ().base.place = "temp_" + to_string(tempNum);
+	tempNum++;
+	yylhs.value.as< varz_str > ().base.code = ". " + yylhs.value.as< varz_str > ().base.place + "\n" + "=[] " + yylhs.value.as< varz_str > ().base.place + ", " + yystack_[3].value.as< string > () + ", " + yystack_[1].value.as< exp_str > ().place + "\n";
+	yylhs.value.as< varz_str > ().addOn.push_back(yystack_[3].value.as< string > ());
+	yylhs.value.as< varz_str > ().id.push_back(yystack_[1].value.as< exp_str > ().place);
+	}
+#line 1233 "parser.tab.c" // lalr1.cc:859
     break;
 
 
-#line 933 "parser.tab.c" // lalr1.cc:859
+#line 1237 "parser.tab.c" // lalr1.cc:859
             default:
               break;
             }
@@ -1358,13 +1662,13 @@ namespace yy {
   const unsigned short int
   parser::yyrline_[] =
   {
-       0,    69,    69,    73,    74,    77,    84,    87,    94,    95,
-      99,   101,   103,   105,   108,   114,   121,   123,   125,   127,
-     130,   132,   134,   136,   138,   140,   142,   144,   147,   149,
-     152,   154,   157,   159,   161,   163,   165,   167,   169,   171,
-     174,   176,   178,   180,   182,   184,   188,   189,   191,   194,
-     196,   199,   201,   207,   214,   216,   221,   225,   230,   234,
-     236,   238,   240,   242,   249,   258,   259,   261,   263
+       0,    84,    84,    88,    89,    92,   103,   106,   113,   114,
+     122,   124,   126,   128,   134,   140,   147,   150,   152,   154,
+     157,   159,   172,   190,   205,   218,   235,   254,   257,   260,
+     267,   269,   276,   282,   288,   290,   292,   294,   296,   301,
+     307,   309,   311,   313,   315,   317,   321,   322,   324,   333,
+     341,   348,   350,   356,   363,   365,   370,   374,   379,   383,
+     385,   387,   389,   391,   398,   409,   421,   424,   426
   };
 
   // Print the state stack on the debug stream.
@@ -1399,8 +1703,8 @@ namespace yy {
 
 
 } // yy
-#line 1403 "parser.tab.c" // lalr1.cc:1167
-#line 271 "part2text.y" // lalr1.cc:1168
+#line 1707 "parser.tab.c" // lalr1.cc:1167
+#line 437 "part2text.y" // lalr1.cc:1168
 
 
    int main(int argc, char *argv[])

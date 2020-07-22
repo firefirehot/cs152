@@ -22,6 +22,16 @@ struct exp_str{
 	string begin;
 	string after;
 };
+struct dec_str{
+	string code;
+	string id;
+	list<string> l;
+	};
+struct varz_str{
+	exp_str base;
+	list<string> addOn;
+	list<string> id;
+};
 }
 
 %code
@@ -46,6 +56,7 @@ string errorArray[30];
 bool no_error = true;
 long tempNum = 0;
 long labelNum = 0;
+long paramNum = 0;
 map <string,int> varTable;
 }
 
@@ -62,9 +73,10 @@ map <string,int> varTable;
 %right UMINUS
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
-%type <string> program function declaration declarationsWsemi statementzWsemi idents 
-%type<exp_str> expression multiplicativeExpression term var expressionzWcomma expressionCommaChain boolExpression statment
-
+%type <string> program function idents comp 
+%type<exp_str> expression multiplicativeExpression term boolExpression statement relationExpression relationAndExpression statementzWsemi
+%type<varz_str> var varzWcomma expressionzWcomma expressionCommaChain
+%type<dec_str> declarationsWsemi declaration
 %%
 
 %start prog_start;
@@ -79,9 +91,13 @@ program:/*epsilon*/
 	;
 function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi endTrigger
 	{$$ = "func " + $2 + "\n";
-	$$ += $5;
-	$$ += $8;
-	$$ += $11;
+	$$ += $5.code;
+	for (list<string>::iterator it = $5.l.begin(); it != $5.l.end(); it++){
+	$$ += "= " + *it + ", " + "$" + to_string(paramNum) + "\n";
+	paramNum++;
+	} 
+	$$ += $8.code;
+	$$ += $11.code;
 	$$ += "endfunc \n";
 	}
 	| FUNCTION error
@@ -94,19 +110,26 @@ endTrigger: END_BODY
 	}
 	}
 declarationsWsemi: /*epsilon*/
-	{$$ = "";}
+	{$$.code = "";$$.l = list<string>();}
         | declaration SEMICOLON declarationsWsemi
 	{
-	$$ = $1 + $3;
+	$$.code = $1.code + $3.code;
+	$$.l = $1.l;
+	for(list<string>::iterator it = $3.l.begin(); it != $3.l.end(); it++){
+	$$.l.push_back(*it);
+	}
 	}
 	| error SEMICOLON
-	{$$ = "";}
+	{$$.code = "";}
 	| declaration error declarationsWsemi
         ;
 declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	{$$ = "'[]' " + $1 + ", " + to_string($5);}
+	{$$.code = "'[]' " + $1 + ", " + to_string($5);}
 	| idents COLON INTEGER
-        {$$ = ". " + $1 + "\n";}
+        {
+	$$.code = ". " + $1 + "\n";
+	$$.l.push_back($1);
+	}
 	;
 idents: IDENT COMMA idents
 	{$$ = $1 + $3;
@@ -122,47 +145,52 @@ idents: IDENT COMMA idents
 	}
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi
-	{$$ = $1.code + $3; } 
+	{
+	$$.code = $1.code + $3.code; } 
 	| statement SEMICOLON
-	{$$ = $1.code;}
+	{$$.code = $1.code;}
 	| error SEMICOLON
-	{$$ = "";}
+	{$$.code = "";}
 	| statement error
-	{$$ = "";}
+	{$$.code = "";}
 	;
 statement: var ASSIGN expression
-        {$$.code = $3.code + $1.code + "= " + $1.place + ", " + $3.place + "\n";}
+        {$$.code = $3.code + $1.base.code + "= " + $1.base.place + ", " + $3.place + "\n";}
 	| IF boolExpression THEN statementzWsemi ENDIF
 	{
-	$$.begin = "label" + to_string(labelNum);
+	$$.begin = "label_" + to_string(labelNum);
 	labelNum++;
-	$$.after = "label" + to_string(labelNum);
+	$$.after = "label_" + to_string(labelNum);
 	labelNum++;
 	$$.code = ": " + $$.begin + "\n";
 	$$.code += $2.code;
 	$$.code += "! " + $2.place + ", " + $2.place + "\n";
-	$$.code += "?:= " + $4.after + ", " + $2.place + "\n";
+	$$.code += "?:= " + $$.after + ", " + $2.place + "\n";
 	$$.code += $4.code;
-	$$.code = ": " + $$.after + "\n";
+	$$.code += ": " + $$.after + "\n";
 	}  
 	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
 	{
-	 $$.begin = "label" + to_string(labelNum);
+	 $$.begin = "label_" + to_string(labelNum);
         labelNum++;
-        $$.after = "label" + to_string(labelNum);
+        $$.after = "label_" + to_string(labelNum);
         labelNum++;
+	string tempexp = "label_" + to_string(labelNum);
+	labelNum++;
         $$.code = ": " + $$.begin + "\n";
         $$.code += $2.code;
         $$.code += "! " + $2.place + ", " + $2.place + "\n"; 
-        $$.code += "?:= " + $5.begin + ", " + $2.place + "\n";
+        $$.code += "?:= " + $6.begin + ", " + $2.place + "\n";
         $$.code += $4.code;
-	$$.code += ":= " + $5.after;
-        $$.code = ": " + $$.after + "\n";
+	$$.code += ":= " + $$.after + "\n";
+	$$.code += ": " + tempexp + "\n";
+	$$.code += $6.code;
+        $$.code += ": " + $$.after + "\n";
 	}  
 	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
-	{$$.begin = "label" + to_string(labelNum);
+	{$$.begin = "label_" + to_string(labelNum);
         labelNum++;
-        $$.after = "label" + to_string(labelNum);
+        $$.after = "label_" + to_string(labelNum);
         labelNum++;
 	$$.code = ": " + $$.begin + "\n";
 	
@@ -170,37 +198,70 @@ statement: var ASSIGN expression
         $$.code += "! " + $2.place + ", " + $2.place + "\n";
         $$.code += "?:= " + $$.after + ", " + $2.place + "\n";
 	$$.code += $4.code;
-	$$.code += ":= " + $$.begin;
+	$$.code += ":= " + $$.begin + "\n";
 	
 	$$.code += ": " + $$.after + "\n";
 	}  
         | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
-	{$$.begin = "label" + to_string(labelNum);
+	{$$.begin = "label_" + to_string(labelNum);
         labelNum++;
-        $$.after = "label" + to_string(labelNum);
+        $$.after = "label_" + to_string(labelNum);
         labelNum++;
 	$$.code = ": " + $$.begin + "\n";
 
 	$$.code += $3.code;
 	$$.code += $6.code;
-        $$.code += "?:= " + $$.begin + ", " + $2.place + "\n";	
+        $$.code += "?:= " + $$.begin + ", " + $6.place + "\n";	
 
 	$$.code += ": " + $$.after + "\n";
 	}  
         | READ varzWcomma
-	{$$ = "statement \n";}  
+	{
+	$$.code = "";
+	list<string>::iterator ids = $2.id.begin();
+	for(list<string>::iterator it = $2.addOn.begin(); it != $2.addOn.end(); it++)
+	{
+		if(*ids == "__")
+		{
+			$$.code += ".< " + *it + "\n";
+		}else
+		{
+			$$.code += ".[]< " + *it + ", " + *ids + "\n";
+		}
+		ids++;
+	}
+	
+	}  
         | WRITE varzWcomma 
-	{$$ = "statement \n";}  
+	{
+	
+	 $$.code = "";
+	 list<string>::iterator ids = $2.id.begin();
+	 for(list<string>::iterator it = $2.addOn.begin(); it != $2.addOn.end(); it++)
+         {
+		if(*ids == "__")
+		{
+                        $$.code += ".> " + *it + "\n";
+                }else
+                {
+                        $$.code += ".[]> " + *it + ", " + *ids + "\n";
+                }
+                ids++;
+        }
+	
+	
+	}  
 	| RETURN expression
-	{$$ = "statement \n";}  
+	{$$.code = $2.code + "ret " + $2.place + "\n";}  
         ;
 boolExpression: relationAndExpression
-        {$$.code = $1.code; $$.place = $1.place;}
+        {
+	$$.code = $1.code; $$.place = $1.place;}
 	| relationAndExpression OR boolExpression
 	{
 	$$.place = "temp_" + to_string(tempNum);
         tempNum++;
-        $$.code = $1.code + $3.code + ". " + $$.place + "\n" + "|| " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
+        $$.code =  $1.code + $3.code + ". " + $$.place + "\n" + "|| " + $$.place + ", " + $1.place + ", " + $3.place + "\n";
 	} 
         ;
 relationAndExpression: relationExpression
@@ -234,21 +295,21 @@ relationExpression: expression comp expression
 	{$$.code = ""; $$.place = "1";}
         |  L_PAREN boolExpression R_PAREN
 	{
-	$$.code = $2.code + "= " + $$.place + ", " + $2.place + "\n";
+	$$.code = $2.code /*+ "= " + $$.place + ", " + $2.place + "\n"*/;
 	$$.place = $2.place;
 	}
         |  NOT L_PAREN boolExpression R_PAREN
 	{
-	$$.code = $3.place + "! " + $3.place + ", " + $3.place + "\n" + "= " + $$.place + ", " + $3.place + "\n";
+	$$.code = $3.place + "! " + $3.place + ", " + $3.place + "\n" /*+ "= " + $$.place + ", " + $3.place + "\n"*/;
         $$.place = $3.place;
 	} 
 	;
 comp: EQ
-        {$$ = "=="}
+        {$$ = "==";}
         | NEQ
-        {$$ = "!="}
+        {$$ = "!=";}
         | LT
-        {$$ = "<"}
+        {$$ = "<";}
         | GT
         {$$ = ">";}
         | LTE
@@ -257,16 +318,32 @@ comp: EQ
 	{$$ = ">=";}
 	;
 expressionzWcomma:/*epsilon*/ 
-	{$$.code = "";}	
+	{$$.base.code = ""; $$.addOn = list<string>();}	
 	| expression
-	{$$.code = $1.code;}
+	{$$.base.code = $1.code;$$.addOn.push_back($1.place);}
         |expression expressionCommaChain
-	{$$.code = $1.code + $2.code;}
+	{
+	$$.base.code = $1.code + $2.base.code;
+	$$.addOn.push_back($1.place);
+	for(list<string>::iterator it = $2.addOn.begin(); it != $2.addOn.end(); it++){
+	$$.addOn.push_back(*it);
+	}
+	}
 	;
 expressionCommaChain: COMMA expression expressionCommaChain
-	{$$.code = $2.code + $3.code;}
+	{
+	$$.base.code = $2.code + $3.base.code;
+	$$.addOn.push_back($2.place);
+	for(list<string>::iterator it = $3.addOn.begin(); it != $3.addOn.end(); it++){
+	$$.addOn.push_back(*it);  
+	}
+	}
 	| COMMA expression
-	{$$.code = $2.code;}
+	{
+	$$.addOn.push_back($2.place);
+	$$.base.code = $2.code;
+	
+	}
 	;
 expression: multiplicativeExpression
         {$$.code = $1.code; $$.place = $1.place;}
@@ -284,7 +361,7 @@ expression: multiplicativeExpression
 	}
 	;
 multiplicativeExpression: term
-        {$$.place = $1.place; $$.code = "";}
+        {$$.place = $1.place; $$.code = $1.code;}
         | term MOD multiplicativeExpression
         { $$.place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
@@ -301,10 +378,10 @@ multiplicativeExpression: term
 	;
 term: var
 	{ 
-	$$.place = $1.place; $$.code = $1.code;
+	$$.place = $1.base.place; $$.code = $1.base.code;
         }
 	| SUB var %prec UMINUS
-        {$$.place = $2.place; $$.code = $2.code + "- " + $2.place + ", 0, " + $2.place + "\n";}
+        {$$.place = $2.base.place; $$.code = $2.base.code + "- " + $2.base.place + ", 0, " + $2.base.place + "\n";}
         | NUMBER
         {$$.place = to_string($1); $$.code = "";}
         | SUB NUMBER %prec UMINUS 
@@ -320,23 +397,40 @@ term: var
 	}
         | IDENT L_PAREN expressionzWcomma R_PAREN
 	{
-	$$.place = "temp_" + to_string(tempNum);//this is a function so this is wrong
+	$$.place = "temp_" + to_string(tempNum);
 	tempNum++;
-	$$.code = $3.code 
-		+ ". " + $$.place 
-				+ "\n" + "call " + $1 + ", " + $$.place;//3.place makes no sence
+	$$.code = $3.base.code;
+	for(list<string>::iterator it = $3.addOn.begin(); it != $3.addOn.end();it++){
+	$$.code += "param " + *it + "\n";
+	}  
+	$$.code	+= ". " + $$.place + "\n" + "call " + $1 + ", " + $$.place + "\n";
 	}
 	;
 varzWcomma: var COMMA varzWcomma
+	{
+	$$.addOn = $1.addOn;
+	$$.id = $1.id;
+	for(list<string>::iterator it = $3.id.begin(); it != $3.id.end(); it++){
+        $$.id.push_back(*it);
+        }
+	for(list<string>::iterator it = $3.addOn.begin(); it != $3.addOn.end(); it++){ 
+	$$.addOn.push_back(*it);
+	}
+	
+	}
 	| var
+	{$$.addOn = $1.addOn; $$.id = $1.id;}
 	;
 var: IDENT
-	{$$.place = $1;}
+	{$$.base.place = $1;$$.addOn.push_back($1);$$.id.push_back("__");}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 	{
-	$$.place = "temp_" + to_string(tempNum);
+	$$.base.place = "temp_" + to_string(tempNum);
 	tempNum++;
-	$$.code = ". " + $$.place + "\n" + "=[] " + $$.place + ", " + $1 + ", " + $3.place + "\n";}
+	$$.base.code = ". " + $$.base.place + "\n" + "=[] " + $$.base.place + ", " + $1 + ", " + $3.place + "\n";
+	$$.addOn.push_back($1);
+	$$.id.push_back($3.place);
+	}
 	;
 
 
