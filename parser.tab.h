@@ -51,6 +51,7 @@ struct exp_str{
 	string place;
 	string begin;
 	string after;
+	bool notLessThanZero = true;
 };
 struct dec_str{
 	string code;
@@ -62,8 +63,13 @@ struct varz_str{
 	list<string> addOn;
 	list<string> id;
 };
+struct func_str{
+	string name;
+	long row;
+	long col;		
+};
 
-#line 67 "parser.tab.h" // lalr1.cc:377
+#line 73 "parser.tab.h" // lalr1.cc:377
 
 
 # include <cstdlib> // std::abort
@@ -140,7 +146,7 @@ struct varz_str{
 
 
 namespace yy {
-#line 144 "parser.tab.h" // lalr1.cc:377
+#line 150 "parser.tab.h" // lalr1.cc:377
 
 
 
@@ -1644,7 +1650,7 @@ namespace yy {
 
 
 } // yy
-#line 1648 "parser.tab.h" // lalr1.cc:377
+#line 1654 "parser.tab.h" // lalr1.cc:377
 
 
 

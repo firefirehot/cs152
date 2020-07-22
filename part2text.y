@@ -21,6 +21,7 @@ struct exp_str{
 	string place;
 	string begin;
 	string after;
+	bool notLessThanZero = true;
 };
 struct dec_str{
 	string code;
@@ -31,6 +32,11 @@ struct varz_str{
 	exp_str base;
 	list<string> addOn;
 	list<string> id;
+};
+struct func_str{
+	string name;
+	long row;
+	long col;		
 };
 }
 
@@ -52,6 +58,7 @@ extern long row_c;
 extern long col_c;
  extern FILE * yyin;
 void yyerror(const char * msg);
+void myerrorRC(string msg, long r,long c);
 string errorArray[30];
 bool no_error = true;
 long tempNum = 0;
@@ -61,6 +68,7 @@ map <string,int> varTable;
 list<string> superTable;
 bool continueActive = false;
 string labelSave;
+list<func_str> checkTable;
 }
 
 %token END 0 "end of file";
@@ -89,6 +97,12 @@ prog_start: program
 	{
 	if(varTable.find("main") == varTable.end()){
 	myerror("main function not found.");
+	}
+	for(list<func_str>::iterator it = checkTable.begin(); it != checkTable.end();it++){
+	if(varTable.find(it->name) == varTable.end()){
+	myerrorRC("Function call not found", it->row,it->col);
+	}
+	
 	}
 	if(no_error) cout << $1 << endl;
 	}
@@ -147,6 +161,9 @@ declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTE
 	for(list<string>::iterator it = $1.begin(); it != $1.end(); it++){
 	$$.code += "[] " + *it + ", " + to_string($5) + "\n";
 	$$.l.push_back(*it);
+	if($5 <= 0) {
+	myerror("Created array with size less than or equal to zero.");
+	}
 	if (!varTable.insert(make_pair(*it,1)).second){
         myerror("Name already existed.");
         }
@@ -392,7 +409,7 @@ expressionCommaChain: COMMA expression expressionCommaChain
 	}
 	;
 expression: multiplicativeExpression
-        {$$.code = $1.code; $$.place = $1.place;}
+        {$$.code = $1.code; $$.place = $1.place; $$.notLessThanZero = $1.notLessThanZero;}
         | multiplicativeExpression ADD expression
         {
 	$$.place = "temp_" + to_string(tempNum);
@@ -407,7 +424,7 @@ expression: multiplicativeExpression
 	}
 	;
 multiplicativeExpression: term
-        {$$.place = $1.place; $$.code = $1.code;}
+        {$$.place = $1.place; $$.code = $1.code; $$.notLessThanZero = $1.notLessThanZero;}
         | term MOD multiplicativeExpression
         { $$.place = "temp_" + to_string(tempNum);
         tempNum++;                                                                                                              
@@ -431,7 +448,7 @@ term: var
         | NUMBER
         {$$.place = to_string($1); $$.code = "";}
         | SUB NUMBER %prec UMINUS 
-        {$$.place = "-" + to_string($2); $$.code = "";}
+        {$$.place = "-" + to_string($2); $$.code = "";$$.notLessThanZero = false;}
         | L_PAREN expression R_PAREN
         {$$.code = $2.code + "= " + $$.place + ", " + $2.place + "\n"; $$.place = $2.place;}
         | SUB L_PAREN expression R_PAREN %prec UMINUS
@@ -444,8 +461,11 @@ term: var
         | IDENT L_PAREN expressionzWcomma R_PAREN
 	{
 	
-	
-	
+	func_str funTemp;//we save the current name, row and column of this ident so that we can check that the function call is good.
+	funTemp.name = $1;
+	funTemp.row = row_c;
+	funTemp.col = col_c;
+	checkTable.push_back(funTemp);
 	$$.place = "temp_" + to_string(tempNum);
 	tempNum++;
 	$$.code = $3.base.code;
@@ -483,6 +503,9 @@ var: IDENT
 	}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 	{
+	if($3.notLessThanZero == false){
+	myerror("attempted to access array with value less than or equal to zero.");
+	}
 	$$.base.place = "temp_" + to_string(tempNum);
 	tempNum++;
 	$$.base.code = ". " + $$.base.place + "\n" + "=[] " + $$.base.place + ", " + $1 + ", " + $3.place + "\n";
@@ -492,7 +515,7 @@ var: IDENT
 	{
 	myerror("undeclared array.");
 	}
-	else if(varTable.find($1)->second != 0){
+	else if(varTable.find($1)->second != 1){
 	myerror("Used variable name as an array name.");
 	}
 	}
@@ -510,14 +533,18 @@ var: IDENT
 void yy::parser::error(const yy::location& l, const std::string& m)
 {
 	  no_error = false;
-        cout << "Error in column " + to_string(col_c) + " row " + to_string(row_c) + " : " + m + "\n";
+        cout << "Error in row " + to_string(row_c) + " column " + to_string(col_c) + " : " + m + "\n";
 }
 
 void myerror(string msg){
 	no_error = false;
-	cout << "Error in column " + to_string(col_c) + " row " + to_string(row_c) + " : " + msg + "\n";
+	cout << "Error in row " + to_string(row_c) + " column " + to_string(col_c) + " : " + msg + "\n";
 
 }
 
+void myerrorRC(string msg, long r, long c){
+        no_error = false;
+        cout << "Error in row " + to_string(r) + " column " + to_string(c) + " : " + msg + "\n";
 
+}
 
