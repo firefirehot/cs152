@@ -58,6 +58,9 @@ long tempNum = 0;
 long labelNum = 0;
 long paramNum = 0;
 map <string,int> varTable;
+list<string> superTable;
+bool continueActive = false;
+string labelSave;
 }
 
 %token END 0 "end of file";
@@ -73,15 +76,22 @@ map <string,int> varTable;
 %right UMINUS
 %left L_SQUARE_BRACKET R_SQUARE_BRACKET
 %left R_PAREN L_PAREN
-%type <string> program function idents comp 
+%type <string> program function comp st
 %type<exp_str> expression multiplicativeExpression term boolExpression statement relationExpression relationAndExpression statementzWsemi
 %type<varz_str> var varzWcomma expressionzWcomma expressionCommaChain
 %type<dec_str> declarationsWsemi declaration
+%type<list<string>> idents
 %%
 
 %start prog_start;
 
-prog_start: program {if(no_error) cout << $1 << endl;}
+prog_start: program 
+	{
+	if(varTable.find("main") == varTable.end()){
+	myerror("main function not found.");
+	}
+	if(no_error) cout << $1 << endl;
+	}
 	;
 
 program:/*epsilon*/
@@ -89,26 +99,35 @@ program:/*epsilon*/
 	| function program
 	{$$ = $1 + "\n" + $2;}
 	;
-function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi endTrigger
-	{$$ = "func " + $2 + "\n";
+function: FUNCTION IDENT SEMICOLON BEGIN_PARAMS declarationsWsemi END_PARAMS BEGIN_LOCALS declarationsWsemi END_LOCALS BEGIN_BODY statementzWsemi END_BODY
+	{
+	bool triggered = false;
+	for(std::map<string,int>::iterator it = varTable.begin(); it != varTable.end(); it++){//pushes all the varibles in the var table into the super table for error checking
+	superTable.push_back(it->first);
+	if(it->first == $2){myerror("Variable named after function.");} //checks if any current variables used the same name of the past functions
+	}
+	$$ = "func " + $2 + "\n";
+	for(list<string>::iterator it = superTable.begin(); it != superTable.end();it++){ //checks if any past variables used the name of the current function
+	if(*it == $2){triggered = true;}
+	}
+	if(triggered){ //error is thrown here from function above to prevent multible errors from being thrown at the same mistake
+        myerror("Variable named after function.");
+        }
+	varTable.insert(make_pair($2,2)); //inserts function name into var table so that future varibles can't use the name
 	$$ += $5.code;
-	for (list<string>::iterator it = $5.l.begin(); it != $5.l.end(); it++){
+	for (list<string>::iterator it = $5.l.begin(); it != $5.l.end(); it++){ 
 	$$ += "= " + *it + ", " + "$" + to_string(paramNum) + "\n";
 	paramNum++;
 	} 
 	$$ += $8.code;
 	$$ += $11.code;
 	$$ += "endfunc \n";
+	for(std::map<string,int>::iterator it = varTable.begin(); it != varTable.end(); it++){//erases all NON-function symbols from the var table.
+	if(it->second != 2){                                                                                                                                                                                         varTable.erase(it);                                                                                                                                                                          }                                                                                                                                                                                                    }
 	}
 	| FUNCTION error
 	{$$ = "";}
         ;
-endTrigger: END_BODY
-	{	
-	for(std::map<string,int>::iterator it = varTable.begin(); it != varTable.end(); it++){
-	it->second = it->second - 1;	
-	}
-	}
 declarationsWsemi: /*epsilon*/
 	{$$.code = "";$$.l = list<string>();}
         | declaration SEMICOLON declarationsWsemi
@@ -124,24 +143,36 @@ declarationsWsemi: /*epsilon*/
 	| declaration error declarationsWsemi
         ;
 declaration: idents COLON ARRAY L_SQUARE_BRACKET NUMBER R_SQUARE_BRACKET OF INTEGER
-	{$$.code = "'[]' " + $1 + ", " + to_string($5);}
+	{
+	for(list<string>::iterator it = $1.begin(); it != $1.end(); it++){
+	$$.code += "[] " + *it + ", " + to_string($5) + "\n";
+	$$.l.push_back(*it);
+	if (!varTable.insert(make_pair(*it,1)).second){
+        myerror("Name already existed.");
+        }
+	} 
+	}
 	| idents COLON INTEGER
         {
-	$$.code = ". " + $1 + "\n";
-	$$.l.push_back($1);
+	for(list<string>::iterator it = $1.begin(); it != $1.end(); it++){
+	$$.code = ". " + *it + "\n";
+	$$.l.push_back(*it);
+	if (!varTable.insert(make_pair(*it,0)).second){
+        myerror("Name already existed.");
+        }
+	}
 	}
 	;
 idents: IDENT COMMA idents
-	{$$ = $1 + $3;
-	if (!varTable.insert(make_pair($1,1)).second){
-	myerror("Variable already existed.");
+	{
+	$$.push_back($1);
+	for(list<string>::iterator it = $3.begin(); it != $3.end(); it++){
+	$$.push_back(*it);
 	}
 	}
 	| IDENT
-	{$$ = $1;
-	if (!varTable.insert(make_pair($1,1)).second){
-	myerror("Variable already existed.");
-	}
+	{
+	$$.push_back($1);
 	}
         ;
 statementzWsemi: statement SEMICOLON statementzWsemi
@@ -156,7 +187,7 @@ statementzWsemi: statement SEMICOLON statementzWsemi
 	;
 statement: var ASSIGN expression
         {$$.code = $3.code + $1.base.code + "= " + $1.base.place + ", " + $3.place + "\n";}
-	| IF boolExpression THEN statementzWsemi ENDIF
+	| IF boolExpression THEN st statementzWsemi en ENDIF
 	{
 	$$.begin = "label_" + to_string(labelNum);
 	labelNum++;
@@ -166,10 +197,10 @@ statement: var ASSIGN expression
 	$$.code += $2.code;
 	$$.code += "! " + $2.place + ", " + $2.place + "\n";
 	$$.code += "?:= " + $$.after + ", " + $2.place + "\n";
-	$$.code += $4.code;
+	$$.code += $5.code;
 	$$.code += ": " + $$.after + "\n";
 	}  
-	| IF boolExpression THEN statementzWsemi ELSE statementzWsemi ENDIF
+	| IF boolExpression THEN st statementzWsemi ELSE statementzWsemi en ENDIF
 	{
 	 $$.begin = "label_" + to_string(labelNum);
         labelNum++;
@@ -180,14 +211,14 @@ statement: var ASSIGN expression
         $$.code = ": " + $$.begin + "\n";
         $$.code += $2.code;
         $$.code += "! " + $2.place + ", " + $2.place + "\n"; 
-        $$.code += "?:= " + $6.begin + ", " + $2.place + "\n";
-        $$.code += $4.code;
+        $$.code += "?:= " + $7.begin + ", " + $2.place + "\n";
+        $$.code += $5.code;
 	$$.code += ":= " + $$.after + "\n";
 	$$.code += ": " + tempexp + "\n";
-	$$.code += $6.code;
+	$$.code += $7.code;
         $$.code += ": " + $$.after + "\n";
 	}  
-	| WHILE boolExpression BEGINLOOP statementzWsemi ENDLOOP
+	| WHILE boolExpression BEGINLOOP st statementzWsemi en ENDLOOP
 	{$$.begin = "label_" + to_string(labelNum);
         labelNum++;
         $$.after = "label_" + to_string(labelNum);
@@ -197,21 +228,21 @@ statement: var ASSIGN expression
 	$$.code += $2.code;
         $$.code += "! " + $2.place + ", " + $2.place + "\n";
         $$.code += "?:= " + $$.after + ", " + $2.place + "\n";
-	$$.code += $4.code;
+	$$.code += $5.code;
 	$$.code += ":= " + $$.begin + "\n";
 	
 	$$.code += ": " + $$.after + "\n";
 	}  
-        | DO BEGINLOOP statementzWsemi ENDLOOP WHILE boolExpression
+        | DO BEGINLOOP st statementzWsemi en ENDLOOP WHILE boolExpression
 	{$$.begin = "label_" + to_string(labelNum);
         labelNum++;
         $$.after = "label_" + to_string(labelNum);
         labelNum++;
 	$$.code = ": " + $$.begin + "\n";
 
-	$$.code += $3.code;
-	$$.code += $6.code;
-        $$.code += "?:= " + $$.begin + ", " + $6.place + "\n";	
+	$$.code += $4.code;
+	$$.code += $8.code;
+        $$.code += "?:= " + $$.begin + ", " + $8.place + "\n";	
 
 	$$.code += ": " + $$.after + "\n";
 	}  
@@ -250,6 +281,13 @@ statement: var ASSIGN expression
         }
 	
 	
+	}
+	| CONTINUE
+	{
+	if(continueActive){
+	$$.code = ":= " + labelSave + "\n";
+	}
+	else{myerror("Continue outside loop.");}
 	}  
 	| RETURN expression
 	{$$.code = $2.code + "ret " + $2.place + "\n";}  
@@ -304,6 +342,14 @@ relationExpression: expression comp expression
         $$.place = $3.place;
 	} 
 	;
+
+st:/*epsilon*/
+	{continueActive = true; labelSave = "label_" + to_string(labelNum); $$ = labelSave;labelNum++;}
+	;
+en:/*epsilon*/
+	{continueActive = false;}
+	;
+
 comp: EQ
         {$$ = "==";}
         | NEQ
@@ -397,6 +443,9 @@ term: var
 	}
         | IDENT L_PAREN expressionzWcomma R_PAREN
 	{
+	
+	
+	
 	$$.place = "temp_" + to_string(tempNum);
 	tempNum++;
 	$$.code = $3.base.code;
@@ -422,7 +471,16 @@ varzWcomma: var COMMA varzWcomma
 	{$$.addOn = $1.addOn; $$.id = $1.id;}
 	;
 var: IDENT
-	{$$.base.place = $1;$$.addOn.push_back($1);$$.id.push_back("__");}
+	{
+	$$.base.place = $1;$$.addOn.push_back($1);$$.id.push_back("__"); 
+	if(varTable.find($1) == varTable.end())
+	{
+	myerror("undeclared variable.");
+	}
+	else if(varTable.find($1)->second != 0){
+	myerror("Used array name as a variable name.");
+	}
+	}
 	| IDENT L_SQUARE_BRACKET expression R_SQUARE_BRACKET
 	{
 	$$.base.place = "temp_" + to_string(tempNum);
@@ -430,6 +488,13 @@ var: IDENT
 	$$.base.code = ". " + $$.base.place + "\n" + "=[] " + $$.base.place + ", " + $1 + ", " + $3.place + "\n";
 	$$.addOn.push_back($1);
 	$$.id.push_back($3.place);
+	if(varTable.find($1) == varTable.end())
+	{
+	myerror("undeclared array.");
+	}
+	else if(varTable.find($1)->second != 0){
+	myerror("Used variable name as an array name.");
+	}
 	}
 	;
 
